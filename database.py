@@ -52,16 +52,13 @@ def update_cluster(cluster_name: str, cluster_ring: int):
     updated_cluster = cursor.fetchone()
     return Cluster(*updated_cluster)
 
-# Tests
-"""
+def list_all_clusters():
+    with connection:
+        cursor.execute("SELECT * FROM CLUSTERS")
+    clusters = cursor.fetchall()
+    result = []
+    for cluster in clusters:
+        result.append(Cluster(*cluster))
+    return result
+
 create_cluster_table()
-insert_cluster(Cluster("bunny", 1, "bunny.yaml"))
-insert_cluster(Cluster("bear", 1, "bear.yaml"))
-insert_cluster(Cluster("panda", 1, "panda.yaml"))
-insert_cluster(Cluster("avocado", 0, "avocado.yaml"))
-# delete_cluster("bear")
-update_cluster("bear", 0)
-# print(get_cluster("bunny"))
-print(list_cluster("bunny"))
-print(list_cluster("avocado"))
-"""

@@ -1,32 +1,58 @@
 import typer
+from rich.console import Console
+from rich.table import Table
+from entities import Cluster
+from database import insert_cluster, get_cluster, list_cluster, delete_cluster, update_cluster, list_all_clusters
 
 app = typer.Typer()
+console = Console()
 
 # Cluster operations
 @app.command(short_help="Register an existing cluster")
-def add_cluster(name: str, ring: int, config_file: str):
+def register_cluster(name: str, ring: int, config_file: str):
     typer.echo(f"Adding Cluster {name} on Ring {ring}...")
+    insert_cluster(Cluster(name, ring, config_file))
 
 @app.command(short_help="Delete a registered cluster")
-def delete_cluster(name: str):
+def remove_cluster(name: str):
     typer.echo(f"Deleting Cluster {name}...")
+    delete_cluster(name)
 
 @app.command(short_help="Get a cluster's info")
-def get_cluster(name: str):
-    cluster = [("bear", 1, "bear.yaml")]
-    typer.echo(f"Name: {name}\nRing: {cluster[0][1]}\nConfig filename: {cluster[0][2]}")
+def get_cluster_info(name: str):
+    cluster = get_cluster(name)
+    table = build_cluster_table()
+    table.add_row(cluster.name, str(cluster.ring), cluster.config, cluster.timestamp)
+    console.print(table)
 
 @app.command(short_help="List the clusters on the same ring")
-def list_cluster(name: str):
-    clusters = [("bear", 1, "bear.yaml"), ("bunny", 1, "bunny.yaml")]
-    typer.echo(f"Cluster {name} is on Ring {clusters[0][1]}. Its siblings are:")
+def list_cluster_siblings(name: str):
+    clusters = list_cluster(name)
+    table = build_cluster_table()
     for cluster in clusters:
-        typer.echo(f"Name: {cluster[0]}     Config filename: {cluster[2]}")
+        table.add_row(cluster.name, str(cluster.ring), cluster.config, cluster.timestamp)
+    console.print(table)
 
 @app.command(short_help="Update the ring a cluster is on")
-def update_cluster(name: str, ring: int):
-    cluster = [("bear", 1, "bear.yaml")]
-    typer.echo(f"Cluster {name} is now on Ring {cluster[0][1]}")
+def update_cluster_ring(name: str, ring: int):
+    cluster = update_cluster(name, ring)
+    typer.echo(f"Cluster {cluster.name} is now on Ring {cluster.ring}")
+
+@app.command(short_help="Display all the registered clusters")
+def display_clusters():
+    clusters = list_all_clusters()
+    table = build_cluster_table()
+    for cluster in clusters: 
+        table.add_row(cluster.name, str(cluster.ring), cluster.config, cluster.timestamp)
+    console.print(table)
+
+def build_cluster_table():
+    table = Table(show_header=True, header_style="blue")
+    table.add_column("Name")
+    table.add_column("Ring")
+    table.add_column("Config File")
+    table.add_column("Last Update")
+    return table
 
 if __name__ == "__main__":
     app()

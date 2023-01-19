@@ -1,2 +1,2 @@
 #!/bin/bash
-echo "Stop this $0"
+echo "Stop this $1"

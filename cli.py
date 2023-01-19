@@ -46,7 +46,7 @@ def display_clusters():
     for cluster in clusters: 
         table.add_row(cluster.name, str(cluster.ring), cluster.config, cluster.timestamp)
     console.print(table)
-    print(subprocess.run(['scripts/add-cluster.sh','argument'], shell=True))
+    print(subprocess.run(['scripts/add-cluster.sh','trend'], shell=True))
 
 def build_cluster_table():
     table = Table(show_header=True, header_style="blue")

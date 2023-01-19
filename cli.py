@@ -1,3 +1,4 @@
+import subprocess
 import typer
 from rich.console import Console
 from rich.table import Table
@@ -9,7 +10,7 @@ console = Console()
 
 # Cluster operations
 @app.command(short_help="Register an existing cluster")
-def register_cluster(name: str, ring: int, config_file: str):
+def add_cluster(name: str, ring: int, config_file: str):
     typer.echo(f"Adding Cluster {name} on Ring {ring}...")
     insert_cluster(Cluster(name, ring, config_file))
 
@@ -45,6 +46,7 @@ def display_clusters():
     for cluster in clusters: 
         table.add_row(cluster.name, str(cluster.ring), cluster.config, cluster.timestamp)
     console.print(table)
+    subprocess.run(['scripts/add-cluster.sh','argument'], shell=True)
 
 def build_cluster_table():
     table = Table(show_header=True, header_style="blue")

@@ -11,7 +11,7 @@ helm -n cattle-fleet-system install --create-namespace --wait \
 kubectl --namespace clusters get fleet > log.txt
 n_lines_after=`wc --lines < log.txt`
 rm log.txt
-if [n_lines_after > n_lines_before]; then
+if [$n_lines_after > $n_lines_before]; then
     exit 0
 else
     exit 1

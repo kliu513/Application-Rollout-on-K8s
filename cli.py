@@ -46,7 +46,7 @@ def display_clusters():
     for cluster in clusters: 
         table.add_row(cluster.name, str(cluster.ring), cluster.config, cluster.timestamp)
     console.print(table)
-    print(subprocess.Popen(["scripts/add-cluster.sh","trend"]))
+    print(subprocess.call(["scripts/add-cluster.sh","config-files/carrot.yaml", "ring0"]))
 
 def build_cluster_table():
     table = Table(show_header=True, header_style="blue")

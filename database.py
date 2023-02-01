@@ -1,5 +1,5 @@
 import sqlite3
-from entities import Cluster
+from entities import Cluster, Service
 
 connection = sqlite3.connect("main.db")
 cursor = connection.cursor()
@@ -61,4 +61,50 @@ def list_all_clusters():
         result.append(Cluster(*cluster))
     return result
 
+# Service operations
+def create_service_table():
+    cursor.execute("""CREATE TABLE IF NOT EXISTS SERVICES (
+        name text PRIMARY KEY,
+        repo text,
+        dependencies text,
+        timestamp text
+    )""")
+
+def insert_service(service: Service):
+    with connection:
+        cursor.execute("INSERT OR IGNORE INTO SERVICES VALUES (:name, :repo, :dependencies, :timestamp)", 
+        {"name": service.name, "repo": service.repo, "dependencies": " ".join(service.dependencies), "timestamp": service.timestamp})
+
+def update_service(service_name: str, service_deps: list):
+    with connection:
+        cursor.execute("UPDATE SERVICES SET dependencies = ? WHERE name = ?", (" ".join(service_deps), service_name,))
+    with connection:
+        cursor.execute("SELECT * FROM SERVICES WHERE name = ?", (service_name,))
+    updated_service = cursor.fetchone()
+    return Service(*updated_service)
+
+def delete_service(service_name: str):
+    with connection:
+        cursor.execute("SELECT * FROM SERVICES WHERE name = ?", (service_name,))
+    deleted_service = cursor.fetchone()
+    with connection:
+        cursor.execute("DELETE FROM SERVICES WHERE name = ?", (service_name,))
+    return Service(*deleted_service)
+
+def get_service(service_name: str):
+    with connection:
+        cursor.execute("SELECT * FROM SERVICES WHERE name = ?", (service_name,))
+    service_info = cursor.fetchone()
+    return Service(*service_info)
+
+def list_all_services():
+    with connection:
+        cursor.execute("SELECT * FROM SERVICES")
+    services = cursor.fetchall()
+    result = []
+    for service in services:
+        result.append(Service(*service))
+    return result
+
 create_cluster_table()
+create_service_table()

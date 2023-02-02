@@ -57,6 +57,7 @@ def build_cluster_table():
     table.add_column("Last Update")
     return table
 
+"""
 # Service operations
 @app.command(short_help="Create a service from a GitHub repository")
 def create_service(name: str, repo: str, dependencies: list):
@@ -94,6 +95,7 @@ def build_service_table():
     table.add_column("Dependencies")
     table.add_column("Last Update")
     return table
+"""
 
 if __name__ == "__main__":
     app()

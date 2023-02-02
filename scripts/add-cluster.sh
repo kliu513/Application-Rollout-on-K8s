@@ -13,7 +13,7 @@ n_lines_after=`wc --lines < log.txt`
 rm log.txt
 if [ $n_lines_after -gt $n_lines_before ]
 then
-    exit 1
-else
     exit 0
+else
+    exit 1
 fi

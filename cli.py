@@ -14,6 +14,8 @@ console = Console()
 def add_cluster(name: str, ring: int, config_file: str):
     typer.echo(f"Adding Cluster {name} on Ring {ring}...")
     insert_cluster(Cluster(name, ring, config_file))
+    if subprocess.call(["scripts/add-cluster.sh", "ring"+str(ring), "config-files/"+config_file])):
+        delete_cluster(name)
 
 @app.command(short_help="Remove a registered cluster")
 def remove_cluster(name: str):
@@ -47,7 +49,6 @@ def display_clusters():
     for cluster in clusters: 
         table.add_row(cluster.name, str(cluster.ring), cluster.config, cluster.timestamp)
     console.print(table)
-    print(subprocess.call(["scripts/add-cluster.sh", "ring0", "config-files/cabbage.cfg"]))
 
 def build_cluster_table():
     table = Table(show_header=True, header_style="blue")

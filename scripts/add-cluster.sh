@@ -12,7 +12,7 @@ kubectl --kubeconfig config-files/fleet-manager.cfg config use-context fleet-man
 kubectl -n clusters get clusters.fleet.cattle.io > log.txt
 n_lines_after=`wc --lines < log.txt`
 rm log.txt
-if [[$n_lines_after -gt $n_lines_before]]
+if [$n_lines_after -gt $n_lines_before]
 then
     exit 0
 else

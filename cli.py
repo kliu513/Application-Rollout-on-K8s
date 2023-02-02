@@ -13,14 +13,16 @@ console = Console()
 @app.command(short_help="Register an existing cluster")
 def add_cluster(name: str, ring: int, config_file: str):
     typer.echo(f"Adding Cluster {name} on Ring {ring}...")
-    insert_cluster(Cluster(name, ring, config_file))
+    insert_cluster(Cluster(name, ring, config_file))bash if else
     if subprocess.call(["scripts/add-cluster.sh", "ring"+str(ring), "config-files/"+config_file]):
         delete_cluster(name)
 
 @app.command(short_help="Remove a registered cluster")
-def remove_cluster(name: str):
+def remove_cluster(name: str, config_file: str):
     typer.echo(f"Removing Cluster {name}...")
-    delete_cluster(name)
+    cluster = delete_cluster(name)
+    if subprocess.call(["scripts/add-cluster.sh", "ring"+str(ring), "config-files/"+config_file]):
+        insert_cluster(cluster)
 
 @app.command(short_help="Get a cluster's info")
 def get_cluster_info(name: str):

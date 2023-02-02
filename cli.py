@@ -42,9 +42,21 @@ def list_cluster_siblings(name: str):
     console.print(table)
 
 @app.command(short_help="Update the ring a cluster is on")
-def update_cluster_ring(name: str, ring: int):
-    cluster = update_cluster(name, ring)
-    typer.echo(f"Cluster {cluster.name} is now on Ring {cluster.ring}")
+def update_cluster_ring(name: str, ring: int, config_file: str):
+    old_cluster = get_cluster_info(name)
+    if old_cluster.ring == ring:
+        typer.echo(f"Cluster {name} is already on Ring {ring}")
+        return
+    new_cluster = update_cluster(name, ring)
+    if subprocess.call(["scripts/remove-cluster.sh", "config-files/"+config_file]):
+        update_cluster(old_cluster.name, old_cluster.ring)
+        typer.echo(f"Updating Clutser {name} failed")
+        return
+    if subprocess.call(["scripts/add-cluster.sh", "ring"+str(ring), "config-files/"+config_file]):
+        update_cluster(old_cluster.name, old_cluster.ring)
+        typer.echo(f"Updating Clutser {name} failed")
+        return
+    typer.echo(f"Cluster {new_cluster.name} is now on Ring {new_cluster.ring}")
 
 @app.command(short_help="Display all the registered clusters")
 def display_clusters():

@@ -14,7 +14,7 @@ console = Console()
 def add_cluster(name: str, ring: int, config_file: str):
     typer.echo(f"Adding Cluster {name} on Ring {ring}...")
     insert_cluster(Cluster(name, ring, config_file))
-    if subprocess.call(["scripts/add-cluster.sh", "ring"+str(ring), "config-files/"+config_file])):
+    if subprocess.call(["scripts/add-cluster.sh", "ring"+str(ring), "config-files/"+config_file]):
         delete_cluster(name)
 
 @app.command(short_help="Remove a registered cluster")

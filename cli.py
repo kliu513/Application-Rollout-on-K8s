@@ -43,7 +43,7 @@ def list_cluster_siblings(name: str):
 
 @app.command(short_help="Update the ring a cluster is on")
 def update_cluster_ring(name: str, ring: int, config_file: str):
-    old_cluster = get_cluster_info(name)
+    old_cluster = get_cluster(name)
     if old_cluster.ring == ring:
         typer.echo(f"Cluster {name} is already on Ring {ring}")
         return

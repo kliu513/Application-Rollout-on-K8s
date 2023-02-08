@@ -1,7 +1,7 @@
 #!/bin/bash
-export KUBECONFIG_MAN="config-files/fleet-manager.cfg"
+export KUBECONFIG_MAN="config-files/manager.cfg"
 touch log.txt
-kubectl --kubeconfig $KUBECONFIG_MAN -n clusters get clusters.fleet.cattle.io >> log.txt
+kubectl --kubeconfig $KUBECONFIG_MAN -n clusters get clusters.fleet.cattle.io > log.txt
 n_lines_before=`wc --lines < log.txt`
 helm -n cattle-fleet-system install --create-namespace --wait \
     --kubeconfig $2 \

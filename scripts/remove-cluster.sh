@@ -1,7 +1,7 @@
 #!/bin/bash
 touch log.txt
 helm --kubeconfig $1 -n cattle-fleet-system uninstall fleet-agent
-kubectl --kubeconfig $1 get deployments --all-namespaces >> log.txt
+kubectl --kubeconfig $1 get deployments --all-namespaces > log.txt
 if [ grep "fleet-agent" log.txt ]
 then
     rm log.txt

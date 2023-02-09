@@ -8,21 +8,19 @@ export NODE=$(sed -e 's/^"//' -e 's/"$//' <<< "$NODE")
 IFS=' ' read -ra CLUSTER <<< "$(grep $NODE log.txt)"
 export CLUSTER
 rm clusters.txt
-touch cluster.json
+touch "$CLUSTER.json"
+kubectl --kubeconfig $KUBECONFIG_MAN -n clusters get clusters.fleet.cattle.io $CLUSTER -o json > "$CLUSTER.json"
+sed -i.bak "s/$2/$3/g" "$CLUSTER.json"
+kubectl apply -f "$CLUSTER.json"
+kubectl --kubeconfig $KUBECONFIG_MAN -n clusters get clusters.fleet.cattle.io $CLUSTER -o json > "$CLUSTER.json"
 echo "here"
-kubectl --kubeconfig $KUBECONFIG_MAN -n clusters get clusters.fleet.cattle.io $CLUSTER -o json > cluster.json
-echo "here"
-sed -i.bak "s/$2/$3/g" cluster.json
-kubectl apply -f cluster.json
-kubectl --kubeconfig $KUBECONFIG_MAN -n clusters get clusters.fleet.cattle.io $CLUSTER -o json > cluster.json
-echo "here"
-if [ grep $2 cluster.json ]
+if [ grep $2 "$CLUSTER.json" ]
 then
-    rm cluster.json
+    rm "$CLUSTER.json"
     echo "Failed to change the cluster label"
     exit 1
 else
-    rm cluster.json
+    rm "$CLUSTER.json"
     echo "Changed the cluster label successfully"
     exit 0
 fi

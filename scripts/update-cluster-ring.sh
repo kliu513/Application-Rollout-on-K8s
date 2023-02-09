@@ -8,7 +8,7 @@ export NODE=$(sed -e 's/^"//' -e 's/"$//' <<< "$NODE")
 export CLUSTER=$(grep $NODE log.txt)
 rm clusters.txt
 touch cluster.json
-kubectl get clusters.fleet.cattle.io $CLUSTER -n clusters -o json > cluster.json
+kubectl -n clusters get clusters.fleet.cattle.io $CLUSTER -o json > cluster.json
 sed -i.bak "s/$2/$3/g" cluster.json
 kubectl apply -f cluster.json
 rm cluster.json

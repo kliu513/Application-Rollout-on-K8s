@@ -12,4 +12,14 @@ touch cluster.json
 kubectl --kubeconfig $KUBECONFIG_MAN -n clusters get clusters.fleet.cattle.io $CLUSTER -o json > cluster.json
 sed -i.bak "s/$2/$3/g" cluster.json
 kubectl apply -f cluster.json
-rm cluster.json
+kubectl --kubeconfig $KUBECONFIG_MAN -n clusters get clusters.fleet.cattle.io $CLUSTER -o json > cluster.json
+if [ grep $2 cluster.json ]
+then
+    rm cluster.json
+    echo "Failed to change the cluster label"
+    exit 1
+else
+    rm cluster.json
+    echo "Changed the cluster label successfully"
+    exit 0
+fi

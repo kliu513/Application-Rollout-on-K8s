@@ -47,10 +47,9 @@ def update_cluster_ring(name: str, ring: int, config_file: str):
     if old_cluster.ring == ring:
         typer.echo(f"Cluster {name} is already on Ring {ring}")
         return
+    subprocess.call(["scripts/update-cluster-ring.sh", "config-files/"+config_file, \
+        "ring"+str(old_cluster.ring), "ring"+str(ring)])
     new_cluster = update_cluster(name, ring)
-    if subprocess.call(["scripts/update-cluster-ring.sh", "config-files/"+config_file, \
-        "ring"+str(old_cluster.ring), "ring"+str(ring)]):
-        new_cluster = update_cluster(name, old_cluster.ring)
     typer.echo(f"Cluster {new_cluster.name} is now on Ring {new_cluster.ring}")
 
 @app.command(short_help="Display all the registered clusters")

@@ -2,9 +2,10 @@ import subprocess
 import typer
 from rich.console import Console
 from rich.table import Table
-from entities import Cluster, Service
+from entities import Cluster, Service, Application
 from database import insert_cluster, get_cluster, list_cluster, delete_cluster, update_cluster, list_all_clusters, \
-    insert_service, get_service, delete_service, update_service, list_all_services
+    insert_service, get_service, delete_service, update_service, list_all_services, \
+    insert_application, delete_application, update_rollout_plan, get_application
 
 app = typer.Typer()
 console = Console()
@@ -68,45 +69,74 @@ def build_cluster_table():
     table.add_column("Last Update")
     return table
 
-"""
 # Service operations
 @app.command(short_help="Create a service from a GitHub repository")
-def create_service(name: str, repo: str, dependencies: list):
-    typer.echo(f"Creating Service {name} from {repo}...")
-    insert_service(Service(name, repo, dependencies))
+def create_service(application: str, service: str, repo: str, version: str, dependencies: list, rollout_plan=None):
+    typer.echo(f"Creating Service {service} in Application {application} from {repo}...")
+    insert_service(Service(application, service, repo, version, dependencies, rollout_plan))
 
 @app.command(short_help="Set a service's dependencies")
-def set_dependencies(name: str, dependencies: list):
-    service = update_service(name, dependencies)
-    typer.echo(f"Service {service.name} now depends on {service.dependencies}")
+def set_dependencies(application: str, service: str, dependencies: list):
+    updated_service = update_service(application, service, dependencies)
+    typer.echo(f"Service {updated_service.service} now depends on {updated_service.dependencies}")
 
 @app.command(short_help="Remove a service")
-def remove_service(name: str):
-    typer.echo(f"Deleting Service {name}...")
+def remove_service(application: str, service: str):
+    typer.echo(f"Deleting Service {service}...")
     services = list_all_services()
-    for service in services:
-        deps = service.dependencies.split(" ")
-        if name in deps:
-            typer.echo(f"Deletion failed: the service requested to be deleted has child services")
-            return
-    delete_service(name)
+    for serv in services:
+        if serv.application == application:
+            if service in serv.dependencies:
+                typer.echo(f"Deletion failed: the service requested to be deleted has dependents")
+                return
+    delete_service(application, service)
 
 @app.command(short_help="Display all the services")
-def display_services():
+def display_services(application: str):
     services = list_all_services()
     table = build_service_table()
-    for service in services: 
-        table.add_row(service.name, service.repo, " ".join(service.dependencies), service.timestamp)
+    for service in services:
+        if service.application == application:
+            table.add_row(service.service, service.repo, service.version, \
+                service.dependencies, service.timestamp)
     console.print(table)
 
 def build_service_table():
     table = Table(show_header=True, header_style="blue")
-    table.add_column("Name")
+    table.add_column("Service Name")
     table.add_column("Repo Link")
+    table.add_column("Current Version")
     table.add_column("Dependencies")
-    table.add_column("Last Update")
+    table.add_column("Rollout Plan")
+    table.add_column("Creation Timestamp")
     return table
-"""
+
+# Application operations
+@app.command(short_help="Create an empty application")
+def create_application(name: str):
+    typer.echo(f"Creating Application {name}...")
+    insert_application(Application(name))
+
+@app.command(short_help="Remove an application")
+def remove_application(name: str):
+    typer.echo(f"Removing Application {name}...")
+    delete_application(name)
+
+@app.command(short_help="Add a rollout plan for a service of the application")
+def set_rolloutplan(application: str, service: str, rollout_plan: str):
+    typer.echo(f"Setting a rollout plan for Service {service}...")
+    updated_service = update_rollout_plan(application, service, rollout_plan)
+    typer.echo(f"Service {updated_service.service} will be rolled out to Version {updated_service.version}")
+
+@app.command(short_help="Display an application's information")
+def get_application_info(name: str):
+    application = get_application(name)
+    typer.echo(f"Application Name: {application.name}   Creation Timestamp: {application.timestamp}   Services:")
+    table = build_service_table()
+    for service in application.services: 
+        table.add_row(service.service, service.repo, service.version, service.dependencies.split(' '), \
+            service.rollout_plan, service.timestamp)
+    console.print(table)
 
 if __name__ == "__main__":
     app()

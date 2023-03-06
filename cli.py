@@ -144,7 +144,7 @@ def get_application_info(name: str):
     typer.echo(f"Application Name: {application.name}   Creation Timestamp: {application.timestamp}   Services:")
     table = build_service_table()
     for service in application.services: 
-        table.add_row(service.service, service.repo, service.version, service.dependencies.split(' '), \
+        table.add_row(service.service, service.repo, service.version, service.dependencies, \
             service.rollout_plan, service.timestamp)
     console.print(table)
 

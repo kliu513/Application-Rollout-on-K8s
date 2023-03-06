@@ -75,9 +75,9 @@ def create_service_table():
 
 def insert_service(service: Service):
     with connection:
-        cursor.execute("INSERT OR IGNORE INTO SERVICES VALUES (:application, :service, :version, \
+        cursor.execute("INSERT OR IGNORE INTO SERVICES VALUES (:application, :service, :repo, :version, \
             :dependencies, :rollout_plan, :timestamp)", 
-        {"application": service.application, "serice": service.service, "repo": service.repo, \
+        {"application": service.application, "service": service.service, "repo": service.repo, \
             "version": service.version, "dependencies": service.dependencies, \
             "rollout_plan": service.rollout_plan, "timestamp": service.timestamp})
 

@@ -85,7 +85,7 @@ def set_dependencies(application: str, service: str, dependencies: str):
 def get_service_info(app_name: str, service_name: str):
     service = get_service(app_name, service_name)
     table = build_service_table()
-    table.add_row(service.service, service.repo, service.version, service.dependencies, \
+    table.add_row(service.application, service.service, service.repo, service.version, service.dependencies, \
         service.rollout_plan, service.timestamp)
     console.print(table)
 
@@ -106,12 +106,13 @@ def display_services(application=None):
     table = build_service_table()
     for service in services:
         if application is None or service.application == application:
-            table.add_row(service.service, service.repo, service.version, \
+            table.add_row(service.application, service.service, service.repo, service.version, \
                 service.dependencies, service.rollout_plan, service.timestamp)
     console.print(table)
 
 def build_service_table():
     table = Table(show_header=True, header_style="blue")
+    table.add_column("Application Name")
     table.add_column("Service Name")
     table.add_column("Repo Link")
     table.add_column("Current Version")

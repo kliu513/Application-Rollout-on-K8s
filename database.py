@@ -152,7 +152,7 @@ def get_application(name: str):
     for res in results:
         services.append(Service(*res))
     with connection:
-        cursor.execute("SELECT * FROM APPLICATIONS WHERE application = ?", (name,))
+        cursor.execute("SELECT * FROM APPLICATIONS WHERE name = ?", (name,))
     result = cursor.fetchone()
     application = Application(*result)
     application.services = services

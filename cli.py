@@ -5,7 +5,7 @@ from rich.table import Table
 from entities import Cluster, Service, Application
 from database import insert_cluster, get_cluster, list_cluster, delete_cluster, update_cluster, list_all_clusters, \
     insert_service, get_service, delete_service, update_service, list_all_services, \
-    insert_application, delete_application, update_rollout_plan, get_application
+    insert_application, delete_application, update_rollout_plan, get_application, list_all_applications
 
 app = typer.Typer()
 console = Console()
@@ -81,6 +81,14 @@ def set_dependencies(application: str, service: str, dependencies: str):
     updated_service = update_service(application, service, dependencies)
     typer.echo(f"Service {updated_service.service} now depends on {updated_service.dependencies}")
 
+@app.command(short_help="Get a service's info")
+def get_service_info(app_name: str, service_name: str):
+    service = get_service(app_name, service_name)
+    table = build_service_table()
+    table.add_row(service.service, service.repo, service.version, service.dependencies, \
+        service.rollout_plan, service.timestamp)
+    console.print(table)
+
 @app.command(short_help="Remove a service")
 def remove_service(application: str, service: str):
     typer.echo(f"Deleting Service {service}...")
@@ -92,14 +100,14 @@ def remove_service(application: str, service: str):
                 return
     delete_service(application, service)
 
-@app.command(short_help="Display all the services")
+@app.command(short_help="Display all the services of an application")
 def display_services(application: str):
     services = list_all_services()
     table = build_service_table()
     for service in services:
         if service.application == application:
             table.add_row(service.service, service.repo, service.version, \
-                service.dependencies, service.timestamp)
+                service.dependencies, service.rollout_plan, service.timestamp)
     console.print(table)
 
 def build_service_table():
@@ -138,6 +146,20 @@ def get_application_info(name: str):
         table.add_row(service.service, service.repo, service.version, service.dependencies.split(' '), \
             service.rollout_plan, service.timestamp)
     console.print(table)
+
+@app.command(short_help="Display all the applications")
+def display_applications():
+    apps = list_all_applications()
+    table = build_application_table()
+    for app in apps:
+        table.add_row(app.name, app.timestamp)
+    console.print(table)
+
+def build_application_table():
+    table = Table(show_header=True, header_style="blue")
+    table.add_column("Application Name")
+    table.add_column("Creation Timestamp")
+    return table
 
 if __name__ == "__main__":
     app()

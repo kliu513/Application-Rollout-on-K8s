@@ -31,10 +31,10 @@ def list_cluster(cluster_name: str):
     with connection:
         cursor.execute("SELECT * FROM CLUSTERS WHERE ring = ?", (*cluster_ring,))
     siblings = cursor.fetchall()
-    result = []
+    results = []
     for sibling in siblings:
-        result.append(Cluster(*sibling))
-    return result
+        results.append(Cluster(*sibling))
+    return results
 
 def delete_cluster(cluster_name: str):
     with connection:
@@ -56,10 +56,10 @@ def list_all_clusters():
     with connection:
         cursor.execute("SELECT * FROM CLUSTERS")
     clusters = cursor.fetchall()
-    result = []
+    results = []
     for cluster in clusters:
-        result.append(Cluster(*cluster))
-    return result
+        results.append(Cluster(*cluster))
+    return results
 
 # Service operations
 def create_service_table():
@@ -108,10 +108,10 @@ def list_all_services():
     with connection:
         cursor.execute("SELECT * FROM SERVICES")
     services = cursor.fetchall()
-    result = []
+    results = []
     for service in services:
-        result.append(Service(*service))
-    return result
+        results.append(Service(*service))
+    return results
 
 # Application operations
 def create_application_table():
@@ -156,6 +156,15 @@ def get_application(name: str):
     application = Application(*result)
     application.services = services
     return application
+
+def list_all_applications():
+    with connection:
+        cursor.execute("SELECT * FROM APPLICATIONS")
+    apps = cursor.fetchall()
+    results = []
+    for app in apps:
+        results.append(Application(*app))
+    return results
 
 create_cluster_table()
 create_service_table()

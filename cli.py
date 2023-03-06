@@ -112,9 +112,9 @@ def display_services(application=None):
 
 def build_service_table():
     table = Table(show_header=True, header_style="blue")
-    table.add_column("Application Name")
-    table.add_column("Service Name")
-    table.add_column("Repo Link")
+    table.add_column("Application")
+    table.add_column("Service")
+    table.add_column("Repo")
     table.add_column("Current Version")
     table.add_column("Dependencies")
     table.add_column("Rollout Plan")

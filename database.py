@@ -78,13 +78,13 @@ def insert_service(service: Service):
         cursor.execute("INSERT OR IGNORE INTO SERVICES VALUES (:application, :service, :version, \
             :dependencies, :rollout_plan, :timestamp)", 
         {"application": service.application, "serice": service.service, "repo": service.repo, \
-            "version": service.version, "dependencies": " ".join(service.dependencies), \
+            "version": service.version, "dependencies": service.dependencies, \
             "rollout_plan": service.rollout_plan, "timestamp": service.timestamp})
 
-def update_service(app_name: str, service_name: str, service_deps: list):
+def update_service(app_name: str, service_name: str, service_deps: str):
     with connection:
         cursor.execute("UPDATE SERVICES SET dependencies = ? WHERE application = ? AND service = ?", \
-            (" ".join(service_deps), app_name, service_name,))
+            (service_deps, app_name, service_name,))
     with connection:
         cursor.execute("SELECT * FROM SERVICES WHERE application = ? AND service = ?", (app_name, service_name,))
     updated_service = cursor.fetchone()

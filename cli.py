@@ -70,13 +70,14 @@ def build_cluster_table():
     return table
 
 # Service operations
+# Format for dependencies: A/B/C
 @app.command(short_help="Create a service from a GitHub repository")
-def create_service(application: str, service: str, repo: str, version: str, dependencies: list, rollout_plan=None):
+def create_service(application: str, service: str, repo: str, version: str, dependencies: str, rollout_plan=None):
     typer.echo(f"Creating Service {service} in Application {application} from {repo}...")
     insert_service(Service(application, service, repo, version, dependencies, rollout_plan))
 
 @app.command(short_help="Set a service's dependencies")
-def set_dependencies(application: str, service: str, dependencies: list):
+def set_dependencies(application: str, service: str, dependencies: str):
     updated_service = update_service(application, service, dependencies)
     typer.echo(f"Service {updated_service.service} now depends on {updated_service.dependencies}")
 
@@ -86,7 +87,7 @@ def remove_service(application: str, service: str):
     services = list_all_services()
     for serv in services:
         if serv.application == application:
-            if service in serv.dependencies:
+            if service in serv.dependencies.split('/'):
                 typer.echo(f"Deletion failed: the service requested to be deleted has dependents")
                 return
     delete_service(application, service)

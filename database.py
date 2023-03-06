@@ -64,13 +64,13 @@ def list_all_clusters():
 # Service operations
 def create_service_table():
     cursor.execute("""CREATE TABLE IF NOT EXISTS SERVICES (
-        application text
+        application text,
         service text,
         repo text,
-        version text
+        version text,
         dependencies text,
-        rollout_plan text
-        timestamp text
+        rollout_plan text,
+        timestamp text,
         CONSTRAINT service_key PRIMARY KEY (application, service)
     )""")
 

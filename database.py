@@ -71,6 +71,7 @@ def create_service_table():
         dependencies text,
         rollout_plan text
         timestamp text
+        CONSTRAINT service_key PRIMARY KEY (application, service)
     )""")
 
 def insert_service(service: Service):

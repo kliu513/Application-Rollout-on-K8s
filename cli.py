@@ -101,11 +101,11 @@ def remove_service(application: str, service: str):
     delete_service(application, service)
 
 @app.command(short_help="Display all the services of an application")
-def display_services(application: str):
+def display_services(application=None):
     services = list_all_services()
     table = build_service_table()
     for service in services:
-        if service.application == application:
+        if application is None or service.application == application:
             table.add_row(service.service, service.repo, service.version, \
                 service.dependencies, service.rollout_plan, service.timestamp)
     console.print(table)

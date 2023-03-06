@@ -132,7 +132,6 @@ def delete_application(name: str):
     with connection:
         cursor.execute("DELETE FROM APPLICATIONS WHERE name = ?", (name,))
         cursor.execute("DELETE FROM SERVICES WHERE application = ?", (name,))
-        cursor.execute("DELETE FROM ROLLOUTPLANS WHERE application = ?" (name,))
     return Application(*deleted_application)
 
 def update_rollout_plan(app_name: str, service_name: str, new_version: str):

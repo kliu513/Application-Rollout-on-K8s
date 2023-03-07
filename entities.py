@@ -25,10 +25,29 @@ class Service:
             {self.rollout_plan}, {self.timestamp})"
 
 class Application:
-    def __init__(self, name, timestamp=None, services = None):
+    def __init__(self, name, timestamp=None, services=[]):
         self.name = name
         self.timestamp = timestamp if timestamp is not None else datetime.datetime.now().isoformat()
         self.services = services
     
     def __repr__(self) -> str:
-        return f"({self.name}, {self.timestamp}, {self.services})"
+        return f"({self.name}, {self.timestamp})"
+
+class Rollout:
+    def __init__(self, application, status=1, uuid=None, timestamp=None, rollout_plans=None):
+        self.application = application
+        self.status = status  # 0: cancelled, 1: running, 2: finished
+        self.uuid = uuid if uuid is not None else uuid.uuid4().hex
+        self.timestamp = timestamp if timestamp is not None else datetime.datetime.now().isoformat()
+        self.rollout_plans = rollout_plans
+    
+    def __repr__(self) -> str:
+        return f"({self.uuid}, {self.application}, {self.status}, {self.timestamp})"
+    
+class RolloutPlan:
+    def __init__(self, service, rollout_plan):
+        self.service = service
+        self.rollout_plan = rollout_plan
+    
+    def __repr__(self) -> str:
+        return f"({self.service}, {self.rollout_plan})"

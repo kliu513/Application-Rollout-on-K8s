@@ -1,12 +1,13 @@
 import subprocess
+import time
 import typer
 from rich.console import Console
 from rich.table import Table
-from entities import Cluster, Service, Application
+from entities import Cluster, Service, Application, Rollout
 from database import insert_cluster, get_cluster, list_cluster, delete_cluster, update_cluster, list_all_clusters, \
     insert_service, get_service, delete_service, update_service, list_all_services, \
-    insert_application, delete_application, update_rollout_plan, get_application, list_all_applications
-
+    insert_application, delete_application, update_rollout_plan, get_application, list_all_applications, \
+    insert_rollout, finish_rollout, get_rollout, list_rollouts, update_rollout_status
 app = typer.Typer()
 console = Console()
 
@@ -100,7 +101,7 @@ def remove_service(application: str, service: str):
                 return
     delete_service(application, service)
 
-@app.command(short_help="Display all the services of an application")
+@app.command(short_help="Display all the services (of an application)")
 def display_services(application=None):
     services = list_all_services()
     table = build_service_table()
@@ -160,6 +161,46 @@ def build_application_table():
     table = Table(show_header=True, header_style="blue")
     table.add_column("Application Name")
     table.add_column("Creation Timestamp")
+    return table
+
+# Rollout operations
+@app.command(short_help="Start the rollout for an application")
+def create_rollout(application: str):
+    typer.echo(f"Starting rollout for Application {application}...")
+    insert_rollout(application)
+    time.sleep(10)
+    finish_rollout(application)
+    get_application_info(application)
+
+@app.command(short_help="Get the information of an application's running rollout")
+def get_rollout_info(application: str):
+    rollout = get_rollout(application)
+    table = build_rollout_table()
+    table.add_row(rollout.uuid, rollout.application, rollout.status, rollout.timestamp, rollout.rollout_plans)
+    console.print(table)
+
+@app.command(short_help="Get (an application's) rollout history")
+def get_rollout_history(application=None):
+    rollouts = list_rollouts(application)
+    table = build_rollout_table()
+    for rollout in rollouts:
+        if application is None or rollout.application == application:
+            table.add_row(rollout.uuid, rollout.application, rollout.status, rollout.timestamp, \
+                          rollout.rollout_plans)
+    console.print(table)
+
+@app.command(short_help="Cancel an application's running rollout")
+def cancel_rollout(application: str):
+    typer.echo(f"Cancelling Application {application}'s running rollout...")
+    update_rollout_status(application)
+
+def build_rollout_table():
+    table = Table(show_header=True, header_style="blue")
+    table.add_column("UUID")
+    table.add_column("Application")
+    table.add_column("Status")
+    table.add_column("Creation Time")
+    table.add_column("Rollout Plans")
     return table
 
 if __name__ == "__main__":

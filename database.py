@@ -1,5 +1,5 @@
 import sqlite3
-from entities import Cluster, Service, Application
+from entities import Cluster, Service, Application, Rollout, RolloutPlan
 
 connection = sqlite3.connect("main.db")
 cursor = connection.cursor()
@@ -167,6 +167,61 @@ def list_all_applications():
         results.append(Application(*app))
     return results
 
+# Rollout operations
+def create_rollout_table():
+    cursor.execute("""CREATE TABLE IF NOT EXISTS ROLLOUTS (
+        application text,
+        status int,
+        uuid text PRIMARY KEY,
+        timestamp text
+        rollout_plans text
+    )""")
+
+def insert_rollout(rollout: Rollout):
+    with connection:
+        cursor.execute("SELECT * FROM ROLLOUTS WHERE application = ? AND status = 1", (rollout.application,))
+    if len(cursor.fetchall()) > 0:
+        print("Insertion failed: an application can only have one running rollout")
+        return
+    with connection:
+        cursor.execute("SELECT service, rollout_plan FROM SERVICES WHERE application = ? AND rollout_plan IS NOT NULL", \
+                       (rollout.application,))
+    results = cursor.fetchall()
+    rollout_plans = [RolloutPlan(*result) for result in results]
+    with connection:
+        cursor.execute("INSERT OR IGNORE INTO ROLLOUTS VALUES (:application, :status, :uuid, :timestamp, :rollout_plans)", 
+        {"application": rollout.application,"status": rollout.status, "uuid": rollout.uuid, \
+         "timestamp": rollout.timestamp, "rollout_plans": ", ".join(rollout_plans)})
+
+def finish_rollout(application: str):
+    update_rollout_status(application, 2)
+    with connection:
+        cursor.execute("SELECT * FROM SERVICES WHERE application = ?", (application,))
+    results = cursor.fetchall()
+    services = [Service(*result) for result in results]
+    for service in services:
+        with connection:
+            cursor.execute("UPDATE SERVICES SET version = ? AND rollout_plan = NULL WHERE service = ? AND \
+                           rollout_plan IS NOT NULL", (service.rollout_plan, service.service,))
+
+def get_rollout(application: str):
+    with connection:
+        cursor.execute("SELECT * FROM ROLLOUTS WHERE application = ? AND status = 1", (application,))
+    result = cursor.fetchone()
+    return Rollout(*result)
+
+def list_rollouts():
+    with connection:
+        cursor.execute("SELECT * FROM ROLLOUTS")
+    results = cursor.fetchall()
+    return [Rollout(*result) for result in results]
+
+def update_rollout_status(application: str, status=0):
+    with connection:
+        cursor.execute("UPDATE ROLLOUTS SET status = ? WHERE application = ? AND status = 1", \
+                       (status, application,))
+
 create_cluster_table()
-create_service_table()
+create_service_table() 
 create_application_table()
+create_rollout_table()

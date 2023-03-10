@@ -73,9 +73,9 @@ def build_cluster_table():
 # Service operations
 # Format for dependencies: A/B/C
 @app.command(short_help="Create a service from a GitHub repository")
-def create_service(application: str, service: str, repo: str, version: str, dependencies: str, rollout_plan=None):
+def create_service(application: str, service: str, repo: str, version: str, dependencies: str):
     typer.echo(f"Creating Service {service} in Application {application} from {repo}...")
-    insert_service(Service(application, service, repo, version, dependencies, rollout_plan))
+    insert_service(Service(application, service, repo, version, dependencies))
 
 @app.command(short_help="Set a service's dependencies")
 def set_dependencies(application: str, service: str, dependencies: str):

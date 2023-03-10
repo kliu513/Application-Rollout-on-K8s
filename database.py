@@ -1,7 +1,7 @@
 import sqlite3
 from entities import Cluster, Service, Application, Rollout, RolloutPlan
 
-connection = sqlite3.connect("main.db")
+connection = sqlite3.connect("main-db.db")
 cursor = connection.cursor()
 
 # Cluster operations

@@ -187,7 +187,7 @@ def insert_rollout(rollout: Rollout):
         cursor.execute("SELECT service, rollout_plan FROM SERVICES WHERE application = ? AND rollout_plan IS NOT NULL", \
                        (rollout.application,))
     results = cursor.fetchall()
-    rollout_plans = [RolloutPlan(*result) for result in results]
+    rollout_plans = [repr(RolloutPlan(*result)) for result in results]
     with connection:
         cursor.execute("INSERT OR IGNORE INTO ROLLOUTS VALUES (:application, :status, :guid, :timestamp, :rollout_plans)", 
         {"application": rollout.application,"status": rollout.status, "guid": rollout.guid, \

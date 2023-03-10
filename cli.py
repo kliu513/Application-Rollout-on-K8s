@@ -101,12 +101,13 @@ def remove_service(application: str, service: str):
                 return
     delete_service(application, service)
 
-@app.command(short_help="Display all the services (of an application)")
-def display_services(application=None):
+@app.command(short_help="Display all the services of an application \
+             (Input 'all' if all the services in the database are wanted)")
+def display_services(application):
     services = list_all_services()
     table = build_service_table()
     for service in services:
-        if application is None or service.application == application:
+        if application == "all" or service.application == application:
             table.add_row(service.application, service.service, service.repo, service.version, \
                 service.dependencies, service.rollout_plan, service.timestamp)
     console.print(table)
@@ -167,7 +168,7 @@ def build_application_table():
 @app.command(short_help="Start the rollout for an application")
 def create_rollout(application: str):
     typer.echo(f"Starting rollout for Application {application}...")
-    insert_rollout(application)
+    insert_rollout(Rollout(application))
     time.sleep(10)
     finish_rollout(application)
     get_application_info(application)
@@ -179,12 +180,13 @@ def get_rollout_info(application: str):
     table.add_row(rollout.uuid, rollout.application, rollout.status, rollout.timestamp, rollout.rollout_plans)
     console.print(table)
 
-@app.command(short_help="Get (an application's) rollout history")
-def get_rollout_history(application=None):
+@app.command(short_help="Get (an application's) rollout history\
+             (Input 'all' if all the services in the database are wanted)")
+def get_rollout_history(application):
     rollouts = list_rollouts(application)
     table = build_rollout_table()
     for rollout in rollouts:
-        if application is None or rollout.application == application:
+        if application == "all" or rollout.application == application:
             table.add_row(rollout.uuid, rollout.application, rollout.status, rollout.timestamp, \
                           rollout.rollout_plans)
     console.print(table)

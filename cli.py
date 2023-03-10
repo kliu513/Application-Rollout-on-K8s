@@ -138,7 +138,7 @@ def remove_application(name: str):
 def set_rollout_plan(application: str, service: str, rollout_plan: str):
     typer.echo(f"Setting a rollout plan for Service {service}...")
     updated_service = update_rollout_plan(application, service, rollout_plan)
-    typer.echo(f"Service {updated_service.service} will be rolled out to Version {updated_service.version}")
+    typer.echo(f"Service {updated_service.service} will be rolled out to Version {updated_service.rollout_plan}")
 
 @app.command(short_help="Display an application's information")
 def get_application_info(name: str):

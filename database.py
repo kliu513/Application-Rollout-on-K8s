@@ -1,7 +1,7 @@
 import sqlite3
 from entities import Cluster, Service, Application, Rollout, RolloutPlan
 
-connection = sqlite3.connect("main-db.db")
+connection = sqlite3.connect("main.db")
 cursor = connection.cursor()
 
 # Cluster operations
@@ -173,7 +173,7 @@ def create_rollout_table():
         application text,
         status int,
         guid text PRIMARY KEY,
-        timestamp text
+        timestamp text,
         rollout_plans text
     )""")
 

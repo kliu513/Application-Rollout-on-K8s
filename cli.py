@@ -177,7 +177,7 @@ def create_rollout(application: str):
 def get_rollout_info(application: str):
     rollout = get_rollout(application)
     table = build_rollout_table()
-    table.add_row(rollout.uuid, rollout.application, rollout.status, rollout.timestamp, rollout.rollout_plans)
+    table.add_row(rollout.guid, rollout.application, rollout.status, rollout.timestamp, rollout.rollout_plans)
     console.print(table)
 
 @app.command(short_help="Get (an application's) rollout history\
@@ -187,7 +187,7 @@ def get_rollout_history(application):
     table = build_rollout_table()
     for rollout in rollouts:
         if application == "all" or rollout.application == application:
-            table.add_row(rollout.uuid, rollout.application, rollout.status, rollout.timestamp, \
+            table.add_row(rollout.guid, rollout.application, rollout.status, rollout.timestamp, \
                           rollout.rollout_plans)
     console.print(table)
 
@@ -198,7 +198,7 @@ def cancel_rollout(application: str):
 
 def build_rollout_table():
     table = Table(show_header=True, header_style="blue")
-    table.add_column("UUID")
+    table.add_column("guid")
     table.add_column("Application")
     table.add_column("Status")
     table.add_column("Creation Time")

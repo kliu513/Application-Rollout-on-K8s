@@ -43,7 +43,7 @@ class Rollout:
         self.rollout_plans = rollout_plans
     
     def __repr__(self) -> str:
-        return f"({self.uuid}, {self.application}, {self.status}, {self.timestamp})"
+        return f"({self.guid}, {self.application}, {self.status}, {self.timestamp})"
     
 class RolloutPlan:
     def __init__(self, service, rollout_plan):

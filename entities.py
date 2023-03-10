@@ -1,4 +1,5 @@
 import datetime
+import uuid
 
 class Cluster:
     def __init__(self, name, ring, config_filename, timestamp=None):
@@ -34,10 +35,10 @@ class Application:
         return f"({self.name}, {self.timestamp})"
 
 class Rollout:
-    def __init__(self, application, status=1, uuid=None, timestamp=None, rollout_plans=None):
+    def __init__(self, application, status=1, guid=None, timestamp=None, rollout_plans=None):
         self.application = application
         self.status = status  # 0: cancelled, 1: running, 2: finished
-        self.uuid = uuid if uuid is not None else uuid.uuid4().hex
+        self.uuid = guid if guid is not None else uuid.uuid4().hex
         self.timestamp = timestamp if timestamp is not None else datetime.datetime.now().isoformat()
         self.rollout_plans = rollout_plans
     

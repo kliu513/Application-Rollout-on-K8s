@@ -172,7 +172,7 @@ def create_rollout_table():
     cursor.execute("""CREATE TABLE IF NOT EXISTS ROLLOUTS (
         application text,
         status int,
-        uuid text PRIMARY KEY,
+        guid text PRIMARY KEY,
         timestamp text
         rollout_plans text
     )""")
@@ -189,8 +189,8 @@ def insert_rollout(rollout: Rollout):
     results = cursor.fetchall()
     rollout_plans = [RolloutPlan(*result) for result in results]
     with connection:
-        cursor.execute("INSERT OR IGNORE INTO ROLLOUTS VALUES (:application, :status, :uuid, :timestamp, :rollout_plans)", 
-        {"application": rollout.application,"status": rollout.status, "uuid": rollout.uuid, \
+        cursor.execute("INSERT OR IGNORE INTO ROLLOUTS VALUES (:application, :status, :guid, :timestamp, :rollout_plans)", 
+        {"application": rollout.application,"status": rollout.status, "guid": rollout.guid, \
          "timestamp": rollout.timestamp, "rollout_plans": ", ".join(rollout_plans)})
 
 def finish_rollout(application: str):

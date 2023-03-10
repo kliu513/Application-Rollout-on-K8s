@@ -199,9 +199,9 @@ def finish_rollout(application: str):
         cursor.execute("SELECT * FROM SERVICES WHERE application = ?", (application,))
     results = cursor.fetchall()
     services = [Service(*result) for result in results]
-    for service in services:
-        with connection:
-            cursor.execute("UPDATE SERVICES SET version = ? AND rollout_plan = NULL WHERE service = ? AND \
+    with connection:
+        for service in services:
+            cursor.execute("UPDATE SERVICES SET version = ? WHERE service = ? AND \
                            rollout_plan IS NOT NULL", (service.rollout_plan, service.service,))
 
 def get_rollout(application: str):

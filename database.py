@@ -182,7 +182,7 @@ def insert_rollout(rollout: Rollout):
         cursor.execute("SELECT * FROM ROLLOUTS WHERE application = ? AND status = 1", (rollout.application,))
     if len(cursor.fetchall()) > 0:
         print("Insertion failed: an application can only have one running rollout")
-        return
+        return False
     with connection:
         cursor.execute("SELECT service, rollout_plan FROM SERVICES WHERE application = ? AND rollout_plan IS NOT NULL", \
                        (rollout.application,))
@@ -192,6 +192,7 @@ def insert_rollout(rollout: Rollout):
         cursor.execute("INSERT OR IGNORE INTO ROLLOUTS VALUES (:application, :status, :guid, :timestamp, :rollout_plans)", 
         {"application": rollout.application,"status": rollout.status, "guid": rollout.guid, \
          "timestamp": rollout.timestamp, "rollout_plans": ", ".join(rollout_plans)})
+    return True
 
 def finish_rollout(application: str):
     update_rollout_status(application, 2)

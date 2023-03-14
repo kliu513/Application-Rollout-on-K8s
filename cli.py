@@ -188,6 +188,7 @@ def get_rollout_history(application):
                           rollout.rollout_plans)
     console.print(table)
 
+# Not applicable because we can only have one command running?
 @app.command(short_help="Cancel an application's running rollout")
 def cancel_rollout(application: str):
     typer.echo(f"Cancelling Application {application}'s running rollout...")

@@ -171,7 +171,7 @@ def create_rollout(application: str):
     insert_rollout(Rollout(application))
     rollout = get_rollout(application)
     table = build_rollout_table()
-    table.add_row(rollout.guid, rollout.application, rollout.status, rollout.timestamp, rollout.rollout_plans)
+    table.add_row(rollout.guid, rollout.application, str(rollout.status), rollout.timestamp, rollout.rollout_plans)
     console.print(table)
     time.sleep(10)
     finish_rollout(application)
@@ -184,7 +184,7 @@ def get_rollout_history(application):
     table = build_rollout_table()
     for rollout in rollouts:
         if application == "all" or rollout.application == application:
-            table.add_row(rollout.guid, rollout.application, rollout.status, rollout.timestamp, \
+            table.add_row(rollout.guid, rollout.application, str(rollout.status), rollout.timestamp, \
                           rollout.rollout_plans)
     console.print(table)
 

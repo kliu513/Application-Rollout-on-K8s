@@ -169,16 +169,13 @@ def build_application_table():
 def create_rollout(application: str):
     typer.echo(f"Starting rollout for Application {application}...")
     insert_rollout(Rollout(application))
-    time.sleep(10)
-    finish_rollout(application)
-    get_application_info(application)
-
-@app.command(short_help="Get the information of an application's running rollout")
-def get_rollout_info(application: str):
     rollout = get_rollout(application)
     table = build_rollout_table()
     table.add_row(rollout.guid, rollout.application, rollout.status, rollout.timestamp, rollout.rollout_plans)
     console.print(table)
+    time.sleep(10)
+    finish_rollout(application)
+    get_application_info(application)
 
 @app.command(short_help="Get (an application's) rollout history\
              (Input 'all' if all the services in the database are wanted)")

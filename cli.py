@@ -7,7 +7,7 @@ from entities import Cluster, Service, Application, Rollout
 from database import insert_cluster, get_cluster, list_cluster, delete_cluster, update_cluster, list_all_clusters, \
     insert_service, get_service, delete_service, update_service, list_all_services, \
     insert_application, delete_application, update_rollout_plan, get_application, list_all_applications, \
-    insert_rollout, finish_rollout, get_rollout, list_rollouts, update_rollout_status
+    insert_rollout, finish_rollout, get_rollout, list_all_rollouts, update_rollout_status
 app = typer.Typer()
 console = Console()
 
@@ -180,7 +180,7 @@ def create_rollout(application: str):
 @app.command(short_help="Get (an application's) rollout history\
              (Input 'all' if all the services in the database are wanted)")
 def get_rollout_history(application):
-    rollouts = list_rollouts(application)
+    rollouts = list_all_rollouts()
     table = build_rollout_table()
     for rollout in rollouts:
         if application == "all" or rollout.application == application:

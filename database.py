@@ -214,7 +214,7 @@ def get_rollout(application: str):
     result = cursor.fetchone()
     return Rollout(*result)
 
-def list_rollouts():
+def list_all_rollouts():
     with connection:
         cursor.execute("SELECT * FROM ROLLOUTS")
     results = cursor.fetchall()

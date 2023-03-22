@@ -1,15 +1,16 @@
-gh repo fork https://github.com/vfarcic/rancher-fleet-demo --clone
-cd rancher-fleet-demo
-cat repo-base.yaml
-nano repo-base.yaml
-git reset --hard
-cat repo.yaml
-nano repo.yaml
-cd helm
-kubectl config use-context fleet-manager
-kubectl -n clusters get fleet
- 1389  git add .
- 1390  git commit -m "Small changes"
-kubectl create secret generic basic-auth-secret -n default --type=kubernetes.io/basic-auth --from-literal=username=kliu513 --from-literal=password=
+export KUBECONFIG_MAN="config-files/manager.cfg"
+touch log.txt
+kubectl --kubeconfig $KUBECONFIG_MAN -n clusters get fleet > log.txt
+n_lines_before=`wc --lines < log.txt`
+gh repo fork $1 --clone
+cd $2
 kubectl apply -f repo.yaml
-kubectl -n clusters get fleet
+kubectl --kubeconfig $KUBECONFIG_MAN -n clusters get fleet > log.txt
+n_lines_after=`wc --lines < log.txt`
+rm log.txt
+if [ $n_lines_after -gt $n_lines_before ]
+then
+    exit 0
+else
+    exit 1
+fi

@@ -73,9 +73,9 @@ def build_cluster_table():
 # Service operations
 # Format for dependencies: A/B/C
 @app.command(short_help="Create a service from a GitHub repository")
-def create_service(application: str, service: str, repo: str, version: str, dependencies: str):
+def create_service(application: str, service: str, repo: str, repo_name: str, version: str, dependencies: str):
     typer.echo(f"Creating Service {service} in Application {application} from {repo}...")
-    insert_service(Service(application, service, repo, version, dependencies))
+    insert_service(Service(application, service, repo, repo_name, version, dependencies))
     if subprocess.call(["scripts/create-service.sh", repo, repo.split('/')[-1]]):
         remove_service(application, service)
         typer.echo(f"Creating Service {service} in Application {application} failed")
@@ -89,8 +89,8 @@ def set_dependencies(application: str, service: str, dependencies: str):
 def get_service_info(app_name: str, service_name: str):
     service = get_service(app_name, service_name)
     table = build_service_table()
-    table.add_row(service.application, service.service, service.repo, service.version, service.dependencies, \
-        service.rollout_plan, service.timestamp)
+    table.add_row(service.application, service.service, service.repo, service.repo_name, service.version, \
+                  service.dependencies, service.rollout_plan, service.timestamp)
     console.print(table)
 
 @app.command(short_help="Remove a service")
@@ -102,7 +102,8 @@ def remove_service(application: str, service: str):
             if service in serv.dependencies.split('/'):
                 typer.echo(f"Deletion failed: the service requested to be deleted has dependents")
                 return
-    delete_service(application, service)
+    deleted_service = delete_service(application, service)
+    subprocess.call(["scripts/remove-service.sh", deleted_service.repo_name])
 
 @app.command(short_help="Display all the services of an application \
              (Input 'all' if all the services in the database are wanted)")
@@ -111,8 +112,8 @@ def display_services(application):
     table = build_service_table()
     for service in services:
         if application == "all" or service.application == application:
-            table.add_row(service.application, service.service, service.repo, service.version, \
-                service.dependencies, service.rollout_plan, service.timestamp)
+            table.add_row(service.application, service.service, service.repo, service.repo_name, \
+                          service.version, service.dependencies, service.rollout_plan, service.timestamp)
     console.print(table)
 
 def build_service_table():
@@ -120,6 +121,7 @@ def build_service_table():
     table.add_column("Application")
     table.add_column("Service")
     table.add_column("Repository Link")
+    table.add_column("Metadata.name")
     table.add_column("Version")
     table.add_column("Service Dependencies")
     table.add_column("Rollout Plan")

@@ -67,7 +67,7 @@ def build_cluster_table():
     table.add_column("Name")
     table.add_column("Ring")
     table.add_column("Config File")
-    table.add_column("Last Update")
+    table.add_column("Creation Timestamp")
     return table
 
 # Service operations

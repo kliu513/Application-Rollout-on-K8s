@@ -1,3 +1,4 @@
+#!/bin/bash
 export KUBECONFIG_MAN="config-files/manager.cfg"
 touch log.txt
 kubectl --kubeconfig $KUBECONFIG_MAN -n clusters get fleet > log.txt

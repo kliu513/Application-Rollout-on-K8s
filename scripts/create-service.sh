@@ -2,7 +2,7 @@ export KUBECONFIG_MAN="config-files/manager.cfg"
 touch log.txt
 kubectl --kubeconfig $KUBECONFIG_MAN -n clusters get fleet > log.txt
 n_lines_before=`wc --lines < log.txt`
-gh repo fork $1 --clone
+git clone $1
 cd $2
 kubectl apply -f repo.yaml
 kubectl --kubeconfig $KUBECONFIG_MAN -n clusters get fleet > log.txt

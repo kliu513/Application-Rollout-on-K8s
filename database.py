@@ -52,6 +52,11 @@ def update_cluster(cluster_name: str, cluster_ring: int):
     updated_cluster = cursor.fetchone()
     return Cluster(*updated_cluster)
 
+def get_number_of_rings():
+    with connection:
+        cursor.execute("SELECT COUNT(DISTINCT ring) AS count FROM CLUSTERS")
+    return cursor.fetchone()
+
 def list_all_clusters():
     with connection:
         cursor.execute("SELECT * FROM CLUSTERS")

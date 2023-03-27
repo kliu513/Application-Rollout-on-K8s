@@ -175,7 +175,7 @@ def create_rollout(application: str):
     if insert_rollout(Rollout(application)):
         app = get_application(application)
         for service in app.services:
-            for i in range(get_number_of_rings()):
+            for i in range(2):
                 subprocess.call(["scripts/create-rollout.sh", service.repo.split('/')[-1], \
                                 service.version, service.rollout_plan, "Ring "+str(i)])
         rollout = get_rollout(application)

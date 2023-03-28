@@ -21,12 +21,14 @@ def add_cluster(name: str, ring: int, config_file: str):
         typer.echo(f"Adding Clutser {name} failed")
 
 @app.command(short_help="Remove a registered cluster")
-def remove_cluster(name: str, config_file: str):
+def remove_cluster(name: str):
     typer.echo(f"Removing Cluster {name}...")
     cluster = delete_cluster(name)
-    if subprocess.call(["scripts/remove-cluster.sh", "config-files/"+config_file]):
+    """
+    if subprocess.call(["scripts/remove-cluster.sh", "config-files/"+cluster.config]):
         insert_cluster(cluster)
         typer.echo(f"Removing Clutser {name} failed")
+    """
 
 @app.command(short_help="Get a cluster's info")
 def get_cluster_info(name: str):

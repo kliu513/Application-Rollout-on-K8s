@@ -165,7 +165,7 @@ def get_service_map(application: str):
             for dep in deps:
                 if not visited[dep]:
                     top_num = top_sort(get_service(application, dep), visited, results, top_num)
-        results[top_num] = service
+        results[top_num] = service.service
         return top_num - 1
     
     services = get_application(application).services

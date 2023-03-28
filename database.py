@@ -79,7 +79,7 @@ def insert_service(service: Service):
         cursor.execute("INSERT OR IGNORE INTO SERVICES VALUES (:application, :service, :repo, \
                        :version, :dependencies, :rollout_plan, :timestamp)", 
         {"application": service.application, "service": service.service, "repo": service.repo, \
-            "version": service.version, "dependencies": service.dependencies, \
+            "version": service.version, "dependencies": '/'.join(service.dependencies), \
             "rollout_plan": service.rollout_plan, "timestamp": service.timestamp})
 
 def update_service(app_name: str, service_name: str, service_deps: str):

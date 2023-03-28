@@ -160,10 +160,11 @@ def get_application_info(name: str):
 def get_service_map(application: str):
     def top_sort(service: Service, visited: dict, results: list, top_num: int):
         visited[service.service] = True
-        deps = service.dependencies.split('/')
-        for dep in deps:
-            if not visited[dep]:
-                top_num = top_sort(get_service(application, dep), visited, results, top_num)
+        if len(deps) > 0:
+            deps = service.dependencies.split('/')
+            for dep in deps:
+                if not visited[dep]:
+                    top_num = top_sort(get_service(application, dep), visited, results, top_num)
         results[top_num] = service
         return top_num - 1
     

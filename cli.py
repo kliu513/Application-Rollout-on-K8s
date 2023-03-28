@@ -178,7 +178,7 @@ def get_service_map(application: str):
             visited[service.service] = False
         top_num = n_services - 1
         for i in range(n_services):
-            if not visited[service.service]:
+            if not visited[services[i].service]:
                 top_num = top_sort(services[i], visited, results, top_num)
     service_map = " <- ".join(results)
     typer.echo(f"{service_map}")

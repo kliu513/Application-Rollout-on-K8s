@@ -169,14 +169,22 @@ def build_application_table():
     return table
 
 # Rollout operations
-@app.command(short_help="Start the rollout for an application")
+@app.command(short_help="Start the rollout for an application on the specified ring")
 def create_rollout(application: str, ring: int):
-    typer.echo(f"Starting rollout for Application {application}...")
+    typer.echo(f"Starting rollout for Application {application} on Ring {str(ring)}...")
     if insert_rollout(Rollout(application)):
         app = get_application(application)
         for service in app.services:
+            typer.echo(f"Start rolling out Service {service.service} on Ring {str(ring)}...")
             subprocess.call(["scripts/create-rollout.sh", service.repo.split('/')[-1], \
                             service.version, service.rollout_plan, "ring"+str(ring)])
+            clusters = list_all_clusters()
+            while len(clusters) > 0:
+                for i in range(len(clusters)):
+                    if subprocess.call(["scripts/check-version.sh", "config-files/"+clusters[i].config, \
+                                     service.repo.split('/')[-1], service.rollout_plan]):
+                        typer.echo(f"Finished Rolling out Service {service.service} on Cluster {clusters[i].name}")
+                        clusters.pop(i)
         rollout = get_rollout(application)
         table = build_rollout_table()
         table.add_row(rollout.guid, rollout.application, str(rollout.status), rollout.timestamp, \

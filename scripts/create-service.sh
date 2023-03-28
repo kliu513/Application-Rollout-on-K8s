@@ -10,6 +10,7 @@ cd ..
 kubectl --kubeconfig $KUBECONFIG_MAN -n clusters get fleet > log.txt
 n_lines_after=`wc --lines < log.txt`
 rm log.txt
+kubectl --kubeconfig $KUBECONFIG_MAN -n clusters get fleet
 if [ $n_lines_after -gt $n_lines_before ]
 then
     exit 0

@@ -166,8 +166,7 @@ def get_service_map(application: str):
                 if not visited[dep]:
                     top_num = top_sort(get_service(application, dep), visited, results, top_num)
         results[top_num] = service.service
-        typer.echo(f"{top_num} {service.service}")
-        return top_num - 1
+        return top_num + 1
     
     services = get_application(application).services
     n_services = len(services)
@@ -176,11 +175,11 @@ def get_service_map(application: str):
         visited = {}
         for service in services:
             visited[service.service] = False
-        top_num = n_services - 1
+        top_num = 0
         for i in range(n_services):
             if not visited[services[i].service]:
                 top_num = top_sort(services[i], visited, results, top_num)
-    service_map = " <- ".join(results)
+    service_map = " -> ".join(results)
     typer.echo(f"{service_map}")
 
 @app.command(short_help="Display all the applications")
@@ -202,8 +201,9 @@ def build_application_table():
 def create_rollout(application: str, ring: int):
     typer.echo(f"Starting rollout for Application {application}...")
     if insert_rollout(Rollout(application)):
-        app = get_application(application)
-        for service in app.services:
+        service_map = get_service_map(application)
+        for serv in service_map:
+            service = get_service(application, serv)
             subprocess.call(["scripts/create-rollout.sh", service.repo.split('/')[-1], \
                             service.version, service.rollout_plan, "ring"+str(ring)])
         rollout = get_rollout(application)

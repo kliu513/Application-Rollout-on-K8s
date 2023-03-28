@@ -162,7 +162,7 @@ def get_service_map(application: str):
         visited[service.service] = True
         deps = service.dependencies.split('/')
         for dep in deps:
-            if not visited(dep):
+            if not visited[dep]:
                 top_num = top_sort(get_service(application, dep), visited, results, top_num)
         results[top_num] = service
         return top_num - 1

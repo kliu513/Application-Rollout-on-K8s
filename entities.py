@@ -18,7 +18,7 @@ class Service:
         self.service = service
         self.repo = repo
         self.version = version
-        self.dependencies = dependencies.split('/')
+        self.dependencies = dependencies
         self.rollout_plan = rollout_plan
         self.timestamp = timestamp if timestamp is not None else datetime.datetime.now().isoformat()
     

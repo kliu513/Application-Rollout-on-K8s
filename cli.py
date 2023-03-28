@@ -76,9 +76,11 @@ def build_cluster_table():
 def create_service(application: str, service: str, repo: str, version: str, dependencies: str):
     typer.echo(f"Creating Service {service} in Application {application} from {repo}...")
     insert_service(Service(application, service, repo, version, dependencies))
+    """
     if subprocess.call(["scripts/create-service.sh", repo, repo.split('/')[-1]]):
         remove_service(application, service)
         typer.echo(f"Creating Service {service} in Application {application} failed")
+    """
 
 @app.command(short_help="Set a service's dependencies")
 def set_dependencies(application: str, service: str, dependencies: str):
@@ -153,6 +155,31 @@ def get_application_info(name: str):
         table.add_row(service.application, service.service, service.repo, service.version, service.dependencies, \
             service.rollout_plan, service.timestamp)
     console.print(table)
+
+@app.command(short_help="Topologically sort an application's service dependency map")
+def get_service_map(application: str):
+    def top_sort(service: Service, visited: dict, results: list, top_num: int):
+        visited[service.service] = True
+        if len(service.dependencies) > 0:
+            for dep in service.dependencies:
+                if not visited(dep):
+                    top_num = top_sort(get_service(application, dep), visited, results, top_num)
+        results[top_num] = service
+        return top_num - 1
+    
+    services = get_application(application).services
+    n_services = len(services)
+    results = [None] * n_services
+    if n_services > 0:
+        visited = {}
+        for service in services:
+            visited[service.service] = False
+        top_num = n_services - 1
+        for i in range(n_services):
+            if not visited[service.service]:
+                top_num = top_sort(services[i], visited, results, top_num)
+    service_map = " <- ".join(results)
+    typer.echo(f"{service_map}")
 
 @app.command(short_help="Display all the applications")
 def display_applications():

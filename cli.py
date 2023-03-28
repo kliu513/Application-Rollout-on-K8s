@@ -76,9 +76,11 @@ def build_cluster_table():
 def create_service(application: str, service: str, repo: str, version: str, dependencies: str):
     typer.echo(f"Creating Service {service} in Application {application} from {repo}...")
     insert_service(Service(application, service, repo, version, dependencies))
+    """
     if subprocess.call(["scripts/create-service.sh", repo, repo.split('/')[-1]]):
         remove_service(application, service)
         typer.echo(f"Creating Service {service} in Application {application} failed")
+    """
 
 @app.command(short_help="Set a service's dependencies")
 def set_dependencies(application: str, service: str, dependencies: str):
@@ -154,6 +156,32 @@ def get_application_info(name: str):
             service.rollout_plan, service.timestamp)
     console.print(table)
 
+@app.command(short_help="Topologically sort an application's service dependency map")
+def get_service_map(application: str):
+    def top_sort(service: Service, visited: dict, results: list, top_num: int):
+        visited[service.service] = True
+        if len(service.dependencies) > 0:
+            deps = service.dependencies.split('/')
+            for dep in deps:
+                if not visited[dep]:
+                    top_num = top_sort(get_service(application, dep), visited, results, top_num)
+        results[top_num] = service.service
+        return top_num + 1
+    
+    services = get_application(application).services
+    n_services = len(services)
+    results = [None] * n_services
+    if n_services > 0:
+        visited = {}
+        for service in services:
+            visited[service.service] = False
+        top_num = 0
+        for i in range(n_services):
+            if not visited[services[i].service]:
+                top_num = top_sort(services[i], visited, results, top_num)
+    service_map = " -> ".join(results)
+    typer.echo(f"{service_map}")
+
 @app.command(short_help="Display all the applications")
 def display_applications():
     apps = list_all_applications()
@@ -173,8 +201,9 @@ def build_application_table():
 def create_rollout(application: str, ring: int):
     typer.echo(f"Starting rollout for Application {application} on Ring {str(ring)}...")
     if insert_rollout(Rollout(application)):
-        app = get_application(application)
-        for service in app.services:
+        service_map = get_service_map(application)
+        for serv in service_map:
+            service = get_service(application, serv)
             typer.echo(f"Start rolling out Service {service.service} on Ring {str(ring)}...")
             subprocess.call(["scripts/create-rollout.sh", service.repo.split('/')[-1], \
                             service.version, service.rollout_plan, "ring"+str(ring)])

@@ -181,6 +181,7 @@ def get_service_map(application: str):
                 top_num = top_sort(services[i], visited, results, top_num)
     service_map = " -> ".join(results)
     typer.echo(f"{service_map}")
+    return results
 
 @app.command(short_help="Display all the applications")
 def display_applications():

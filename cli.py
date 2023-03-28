@@ -207,16 +207,17 @@ def create_rollout(application: str, ring: int):
         service_map = get_service_map(application)
         for serv in service_map:
             service = get_service(application, serv)
-            typer.echo(f"Start rolling out Service {service.service} on Ring {str(ring)}...")
-            subprocess.call(["scripts/create-rollout.sh", service.repo.split('/')[-1], \
-                            service.version, service.rollout_plan, "ring"+str(ring)])
-            clusters = list_all_clusters()
-            while len(clusters) > 0:
-                for i in range(len(clusters)):
-                    if subprocess.call(["scripts/check-version.sh", "config-files/"+clusters[i].config, \
-                                     service.repo.split('/')[-1], service.rollout_plan]):
-                        typer.echo(f"Finished Rolling out Service {service.service} on Cluster {clusters[i].name}")
-                        clusters.pop(i)
+            if len(service.rollout_plan) > 0:
+                typer.echo(f"Start rolling out Service {service.service} on Ring {str(ring)}...")
+                subprocess.call(["scripts/create-rollout.sh", service.repo.split('/')[-1], \
+                                service.version, service.rollout_plan, "ring"+str(ring)])
+                clusters = list_all_clusters()
+                while len(clusters) > 0:
+                    for i in range(len(clusters)):
+                        if subprocess.call(["scripts/check-version.sh", "config-files/"+clusters[i].config, \
+                                        service.repo.split('/')[-1], service.rollout_plan]):
+                            typer.echo(f"Finished Rolling out Service {service.service} on Cluster {clusters[i].name}")
+                            clusters.pop(i)
         rollout = get_rollout(application)
         table = build_rollout_table()
         table.add_row(rollout.guid, rollout.application, str(rollout.status), rollout.timestamp, \

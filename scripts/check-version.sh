@@ -1,7 +1,10 @@
 #!/bin/bash
 cd $2
 export DIR=$(yq -r .spec.paths[0] repo.yaml)
-cd ..
+cd $DIR
+export NS=$(yq -r .namespace fleet.yaml)
+cd
+cd App-Rollout-on-K8s
 export IMAGE=$(kubectl --kubeconfig $1 get deployment -n fleet-mc-helm-example -o json\
  | jq '.items | .[0].spec.template.spec.containers | .[0].image')
 export IMAGE=$(sed -e 's/^"//' -e 's/"$//' <<< $IMAGE)

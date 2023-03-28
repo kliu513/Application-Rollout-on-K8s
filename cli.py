@@ -7,7 +7,7 @@ from entities import Cluster, Service, Application, Rollout
 from database import insert_cluster, get_cluster, list_cluster, delete_cluster, update_cluster, list_all_clusters, \
     insert_service, get_service, delete_service, update_service, list_all_services, \
     insert_application, delete_application, update_rollout_plan, get_application, list_all_applications, \
-    insert_rollout, finish_rollout, get_rollout, list_all_rollouts, update_rollout_status, get_number_of_rings
+    insert_rollout, finish_rollout, get_rollout, list_all_rollouts, update_rollout_status
 app = typer.Typer()
 console = Console()
 
@@ -170,14 +170,13 @@ def build_application_table():
 
 # Rollout operations
 @app.command(short_help="Start the rollout for an application")
-def create_rollout(application: str):
+def create_rollout(application: str, ring: int):
     typer.echo(f"Starting rollout for Application {application}...")
     if insert_rollout(Rollout(application)):
         app = get_application(application)
         for service in app.services:
-            for i in range(2):
-                subprocess.call(["scripts/create-rollout.sh", service.repo.split('/')[-1], \
-                                service.version, service.rollout_plan, "Ring "+str(i)])
+            subprocess.call(["scripts/create-rollout.sh", service.repo.split('/')[-1], \
+                            service.version, service.rollout_plan, "ring"+str(ring)])
         rollout = get_rollout(application)
         table = build_rollout_table()
         table.add_row(rollout.guid, rollout.application, str(rollout.status), rollout.timestamp, \

@@ -5,7 +5,7 @@ from rich.console import Console
 from rich.table import Table
 from entities import Cluster, Service, Application, Rollout
 from database import insert_cluster, get_cluster, list_cluster, delete_cluster, update_cluster, list_all_clusters, \
-    insert_service, get_service, delete_service, update_service_deps, list_all_services, update_service_version, \
+    insert_service, get_service, delete_service, update_service_deps, list_all_services, \
     insert_application, delete_application, update_rollout_plan, get_application, list_all_applications, \
     insert_rollout, finish_rollout, get_rollout, list_all_rollouts, update_rollout_status
 app = typer.Typer()

@@ -24,11 +24,9 @@ def add_cluster(name: str, ring: int, config_file: str):
 def remove_cluster(name: str):
     typer.echo(f"Removing Cluster {name}...")
     cluster = delete_cluster(name)
-    """
     if subprocess.call(["scripts/remove-cluster.sh", "config-files/"+cluster.config]):
         insert_cluster(cluster)
         typer.echo(f"Removing Clutser {name} failed")
-    """
 
 @app.command(short_help="Get a cluster's info")
 def get_cluster_info(name: str):
@@ -220,7 +218,8 @@ def create_rollout(application: str, ring: int):
                     for i in range(len(clusters)):
                         if subprocess.call(["scripts/check-version.sh", "config-files/"+clusters[i].config, \
                                         service.repo.split('/')[-1], service.rollout_plan]):
-                            typer.echo(f"Finished Rolling out Service {service.service} on Cluster {clusters[i].name}")
+                            typer.echo(f"Finished Rolling out Service {service.service} on \
+                                       Cluster {clusters[i].name}")
                             time.sleep(5)
                             clusters.pop(i)
         rollout = get_rollout(application)

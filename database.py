@@ -78,7 +78,7 @@ def create_version_table():
     cursor.execute("""CREATE TABLE IF NOT EXISTS VERSIONS (
         application text,
         service text,
-        ring int,
+        ring text,
         version text,
         CONSTRAINT service_key PRIMARY KEY (application, service, ring)
     )""")

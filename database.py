@@ -108,7 +108,7 @@ def get_service_version(app_name: str, service_name: str):
     with connection:
         cursor.execute("SELECT ring, version FROM VERSIONS WHERE application = ? AND service = ?", \
                        (app_name, service_name,))
-    return ", ".join(cursor.fetchall())
+    return ", ".join(':'.join(pair) for pair in cursor.fetchall())
 
 def delete_service_version(app_name: str, service_name: str):
     with connection:

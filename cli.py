@@ -218,10 +218,11 @@ def create_rollout(application: str, ring: int):
                 time.sleep(5)
                 subprocess.call(["scripts/create-rollout.sh", service.repo.split('/')[-1], \
                                 service.version, service.rollout_plan, "ring"+str(ring)])
-                clusters = list_all_clusters()
-                for i in range(len(clusters)):
-                    if clusters[i].ring == ring:
-                        clusters.pop(i)
+                results = list_all_clusters()
+                clusters = []
+                for result in results:
+                    if result.ring == ring:
+                        clusters.append(result)
                 while len(clusters) > 0:
                     for i in range(len(clusters)):
                         if subprocess.call(["scripts/check-version.sh", "config-files/"+clusters[i].config, \

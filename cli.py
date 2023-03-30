@@ -207,8 +207,14 @@ def create_rollout(application: str, ring: int):
         service_map = get_service_map(application)
         for serv in service_map:
             service = get_service(application, serv)
+            pairs = service.version.split(", ")
+            for pair in pairs:
+                curr_pair = pair.split(':')
+                if curr_pair[0] == ("ring" + str(ring)):
+                    service.version = curr_pair[1]
             if service.rollout_plan is not None:
                 typer.echo(f"Start rolling out Service {service.service} on Ring {str(ring)}...")
+                typer.echo(f"Current version: {service.version}")
                 time.sleep(5)
                 subprocess.call(["scripts/create-rollout.sh", service.repo.split('/')[-1], \
                                 service.version, service.rollout_plan, "ring"+str(ring)])

@@ -95,7 +95,7 @@ def insert_service(service: Service):
     with connection:
         for ring in rings:
             cursor.execute("INSERT OR IGNORE INTO VERSIONS VALUES (:application, :service, :ring, :version)",
-            {"application": service.application, "service": service.service, "ring": ring[0], \
+            {"application": service.application, "service": service.service, "ring": "ring"+str(ring[0]), \
              "version": service.version})
 
 def update_service_deps(app_name: str, service_name: str, service_deps: str):
@@ -117,7 +117,7 @@ def delete_service_version(app_name: str, service_name: str):
 def update_service_version(app_name: str, service_name: str, updated_ring: int, new_version: str):
     with connection:
         cursor.execute("UPDATE VERSIONS SET version = ? WHERE application = ? AND service = ? AND \
-                       ring = ?", (new_version, app_name, service_name, updated_ring))
+                       ring = ?", (new_version, app_name, service_name, "ring"+str(updated_ring)))
 
 def delete_service(app_name: str, service_name: str):
     deleted_service = get_service(app_name, service_name)

@@ -74,36 +74,65 @@ def create_service_table():
         CONSTRAINT service_key PRIMARY KEY (application, service)
     )""")
 
+def create_version_table():
+    cursor.execute("""CREATE TABLE IF NOT EXISTS VERSIONS (
+        application text,
+        service text,
+        ring int,
+        version text,
+        CONSTRAINT service_key PRIMARY KEY (application, service, ring)
+    )""")
+
 def insert_service(service: Service):
     with connection:
         cursor.execute("INSERT OR IGNORE INTO SERVICES VALUES (:application, :service, :repo, \
                        :version, :dependencies, :rollout_plan, :timestamp)", 
         {"application": service.application, "service": service.service, "repo": service.repo, \
-            "version": service.version, "dependencies": service.dependencies, \
-            "rollout_plan": service.rollout_plan, "timestamp": service.timestamp})
+         "version": service.version, "dependencies": service.dependencies, "rollout_plan": service.rollout_plan, \
+         "timestamp": service.timestamp})
+        cursor.execute("SELECT DISTINCT ring FROM CLUSTERS")
+    rings = cursor.fetchall()
+    with connection:
+        for ring in rings:
+            cursor.execute("INSERT OR IGNORE INTO VERSIONS VALUES (:application, :service, :ring, :version)",
+            {"application": service.application, "service": service.service, "ring": ring[0], \
+             "version": service.version})
 
-def update_service(app_name: str, service_name: str, service_deps: str):
+def update_service_deps(app_name: str, service_name: str, service_deps: str):
     with connection:
         cursor.execute("UPDATE SERVICES SET dependencies = ? WHERE application = ? AND service = ?", \
             (service_deps, app_name, service_name,))
+    return get_service(app_name, service_name)
+
+def get_service_version(app_name: str, service_name: str):
     with connection:
-        cursor.execute("SELECT * FROM SERVICES WHERE application = ? AND service = ?", (app_name, service_name,))
-    updated_service = cursor.fetchone()
-    return Service(*updated_service)
+        cursor.execute("SELECT ring, version FROM VERSIONS WHERE application = ? AND service = ?", \
+                       (app_name, service_name,))
+    return ", ".join(cursor.fetchall())
+
+def delete_service_version(app_name: str, service_name: str):
+    with connection:
+        cursor.execute("DELETE FROM VERSIONS WHERE application = ? AND service = ?", (app_name, service_name,))
+
+def update_service_version(app_name: str, service_name: str, updated_ring: int, new_version: str):
+    with connection:
+        cursor.execute("UPDATE VERSIONS SET version = ? WHERE application = ? AND service = ? AND \
+                       ring = ?", (new_version, app_name, service_name, updated_ring))
 
 def delete_service(app_name: str, service_name: str):
-    with connection:
-        cursor.execute("SELECT * FROM SERVICES WHERE application = ? AND service = ?", (app_name, service_name,))
-    deleted_service = cursor.fetchone()
+    deleted_service = get_service(app_name, service_name)
     with connection:
         cursor.execute("DELETE FROM SERVICES WHERE application = ? AND service = ?", (app_name, service_name,))
-    return Service(*deleted_service)
+    delete_service_version(app_name, service_name)
+    return deleted_service
 
 def get_service(app_name: str, service_name: str):
     with connection:
         cursor.execute("SELECT * FROM SERVICES WHERE application = ? AND service = ?", (app_name, service_name,))
     service_info = cursor.fetchone()
-    return Service(*service_info)
+    result = Service(*service_info)
+    result.version = get_service_version(app_name, service_name)
+    return result
 
 def list_all_services():
     with connection:
@@ -112,6 +141,8 @@ def list_all_services():
     results = []
     for service in services:
         results.append(Service(*service))
+    for result in results:
+        result.version = get_service_version(result.application, result.service)
     return results
 
 # Application operations
@@ -127,22 +158,18 @@ def insert_application(app: Application):
         {"name": app.name, "timestamp": app.timestamp})
 
 def delete_application(name: str):
-    with connection:
-        cursor.execute("SELECT * FROM APPLICATIONS WHERE name = ?", (name,))
-    deleted_application = cursor.fetchone()
+    deleted_app = get_application(name)
+    for service in deleted_app.services:
+        delete_service(name, service.service)
     with connection:
         cursor.execute("DELETE FROM APPLICATIONS WHERE name = ?", (name,))
-        cursor.execute("DELETE FROM SERVICES WHERE application = ?", (name,))
-    return Application(*deleted_application)
+    return deleted_app
 
 def update_rollout_plan(app_name: str, service_name: str, new_version: str):
     with connection:
         cursor.execute("UPDATE SERVICES SET rollout_plan = ? WHERE application = ? AND service = ?", \
             (new_version, app_name, service_name,))
-    with connection:
-        cursor.execute("SELECT * FROM SERVICES WHERE application = ? AND service = ?", (app_name, service_name,))
-    updated_service = cursor.fetchone()
-    return Service(*updated_service)
+    return get_service(app_name, service_name)
 
 def get_application(name: str):
     with connection:
@@ -151,6 +178,8 @@ def get_application(name: str):
     services = []
     for res in results:
         services.append(Service(*res))
+    for service in services:
+        service.version = get_service_version(name, service.service)
     with connection:
         cursor.execute("SELECT * FROM APPLICATIONS WHERE name = ?", (name,))
     result = cursor.fetchone()
@@ -184,17 +213,18 @@ def insert_rollout(rollout: Rollout):
         print("Insertion failed: an application can only have one running rollout")
         return False
     with connection:
-        cursor.execute("SELECT service, rollout_plan FROM SERVICES WHERE application = ? AND rollout_plan IS NOT NULL", \
-                       (rollout.application,))
+        cursor.execute("SELECT service, rollout_plan FROM SERVICES WHERE application = ? AND \
+                       rollout_plan IS NOT NULL", (rollout.application,))
     results = cursor.fetchall()
     rollout_plans = [repr(RolloutPlan(*result)) for result in results]
     with connection:
-        cursor.execute("INSERT OR IGNORE INTO ROLLOUTS VALUES (:application, :status, :guid, :timestamp, :rollout_plans)", 
+        cursor.execute("INSERT OR IGNORE INTO ROLLOUTS VALUES (:application, :status, :guid, :timestamp, \
+                       :rollout_plans)", 
         {"application": rollout.application,"status": rollout.status, "guid": rollout.guid, \
          "timestamp": rollout.timestamp, "rollout_plans": ", ".join(rollout_plans)})
     return True
 
-def finish_rollout(application: str):
+def finish_rollout(application: str, ring: int):
     update_rollout_status(application, 2)
     with connection:
         cursor.execute("SELECT * FROM SERVICES WHERE application = ?", (application,))
@@ -202,11 +232,9 @@ def finish_rollout(application: str):
     services = [Service(*result) for result in results]
     with connection:
         for service in services:
-            cursor.execute("UPDATE SERVICES SET version = ? WHERE service = ? AND rollout_plan IS NOT NULL", \
-                           (service.rollout_plan, service.service,))
-    with connection:
-        for service in services:
-            cursor.execute("UPDATE SERVICES SET rollout_plan = NULL WHERE service = ?", (service.service,))
+            if service.rollout_plan is not None:
+                update_service_version(application, service.service, ring, service.rollout_plan)
+                cursor.execute("UPDATE SERVICES SET rollout_plan = NULL WHERE service = ?", (service.service,))
 
 def get_rollout(application: str):
     with connection:
@@ -229,3 +257,4 @@ create_cluster_table()
 create_service_table() 
 create_application_table()
 create_rollout_table()
+create_version_table()

@@ -5,7 +5,7 @@ from rich.console import Console
 from rich.table import Table
 from entities import Cluster, Service, Application, Rollout
 from database import insert_cluster, get_cluster, list_cluster, delete_cluster, update_cluster, list_all_clusters, \
-    insert_service, get_service, delete_service, update_service, list_all_services, \
+    insert_service, get_service, delete_service, update_service_deps, list_all_services, update_service_version, \
     insert_application, delete_application, update_rollout_plan, get_application, list_all_applications, \
     insert_rollout, finish_rollout, get_rollout, list_all_rollouts, update_rollout_status
 app = typer.Typer()
@@ -86,7 +86,7 @@ def create_service(application: str, service: str, repo: str, version: str, depe
 
 @app.command(short_help="Set a service's dependencies")
 def set_dependencies(application: str, service: str, dependencies: str):
-    updated_service = update_service(application, service, dependencies)
+    updated_service = update_service_deps(application, service, dependencies)
     typer.echo(f"Service {updated_service.service} now depends on {updated_service.dependencies}")
 
 @app.command(short_help="Get a service's info")
@@ -209,6 +209,7 @@ def create_rollout(application: str, ring: int):
             service = get_service(application, serv)
             if service.rollout_plan is not None:
                 typer.echo(f"Start rolling out Service {service.service} on Ring {str(ring)}...")
+                time.sleep(5)
                 subprocess.call(["scripts/create-rollout.sh", service.repo.split('/')[-1], \
                                 service.version, service.rollout_plan, "ring"+str(ring)])
                 clusters = list_all_clusters()
@@ -220,14 +221,14 @@ def create_rollout(application: str, ring: int):
                         if subprocess.call(["scripts/check-version.sh", "config-files/"+clusters[i].config, \
                                         service.repo.split('/')[-1], service.rollout_plan]):
                             typer.echo(f"Finished Rolling out Service {service.service} on Cluster {clusters[i].name}")
+                            time.sleep(5)
                             clusters.pop(i)
         rollout = get_rollout(application)
         table = build_rollout_table()
         table.add_row(rollout.guid, rollout.application, str(rollout.status), rollout.timestamp, \
                       rollout.rollout_plans)
         console.print(table)
-        time.sleep(10)
-        finish_rollout(application)
+        finish_rollout(application, ring)
         get_application_info(application)
 
 @app.command(short_help="Get (an application's) rollout history\

@@ -8,7 +8,7 @@ cursor = connection.cursor()
 def create_cluster_table():
     cursor.execute("""CREATE TABLE IF NOT EXISTS CLUSTERS (
         name text PRIMARY KEY,
-        ring int,
+        ring text,
         file text,
         timestamp text
     )""")
@@ -44,7 +44,7 @@ def delete_cluster(cluster_name: str):
         cursor.execute("DELETE FROM CLUSTERS WHERE name = ?", (cluster_name,))
     return Cluster(*deleted_cluster)
 
-def update_cluster(cluster_name: str, cluster_ring: int):
+def update_cluster(cluster_name: str, cluster_ring: str):
     with connection:
         cursor.execute("UPDATE CLUSTERS SET ring = ? WHERE name = ?", (cluster_ring, cluster_name,))
     with connection:
@@ -95,7 +95,7 @@ def insert_service(service: Service):
     with connection:
         for ring in rings:
             cursor.execute("INSERT OR IGNORE INTO VERSIONS VALUES (:application, :service, :ring, :version)",
-            {"application": service.application, "service": service.service, "ring": "ring"+str(ring[0]), \
+            {"application": service.application, "service": service.service, "ring": ring[0], \
              "version": service.version})
 
 def update_service_deps(app_name: str, service_name: str, service_deps: str):
@@ -114,10 +114,10 @@ def delete_service_version(app_name: str, service_name: str):
     with connection:
         cursor.execute("DELETE FROM VERSIONS WHERE application = ? AND service = ?", (app_name, service_name,))
 
-def update_service_version(app_name: str, service_name: str, updated_ring: int, new_version: str):
+def update_service_version(app_name: str, service_name: str, updated_ring: str, new_version: str):
     with connection:
         cursor.execute("UPDATE VERSIONS SET version = ? WHERE application = ? AND service = ? AND \
-                       ring = ?", (new_version, app_name, service_name, "ring"+str(updated_ring)))
+                       ring = ?", (new_version, app_name, service_name, updated_ring,))
 
 def delete_service(app_name: str, service_name: str):
     deleted_service = get_service(app_name, service_name)
@@ -224,7 +224,7 @@ def insert_rollout(rollout: Rollout):
          "timestamp": rollout.timestamp, "rollout_plans": ", ".join(rollout_plans)})
     return True
 
-def finish_rollout(application: str, ring: int):
+def finish_rollout(application: str, ring: str):
     update_rollout_status(application, 2)
     with connection:
         cursor.execute("SELECT * FROM SERVICES WHERE application = ?", (application,))

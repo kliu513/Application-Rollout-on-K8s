@@ -13,11 +13,11 @@ console = Console()
 
 # Cluster operations
 @app.command(short_help="Register an existing cluster")
-def add_cluster(name: str, ring: int, config_file: str):
+def add_cluster(name: str, ring: str, config_file: str):
     typer.echo(f"Adding Cluster {name} on Ring {ring}...")
     insert_cluster(Cluster(name, ring, config_file))
     """
-    if subprocess.call(["scripts/add-cluster.sh", "ring"+str(ring), "config-files/"+config_file]):
+    if subprocess.call(["scripts/add-cluster.sh", ring, "config-files/"+config_file]):
         delete_cluster(name)
         typer.echo(f"Adding Clutser {name} failed")
     """
@@ -34,7 +34,7 @@ def remove_cluster(name: str):
 def get_cluster_info(name: str):
     cluster = get_cluster(name)
     table = build_cluster_table()
-    table.add_row(cluster.name, str(cluster.ring), cluster.config, cluster.timestamp)
+    table.add_row(cluster.name, cluster.ring, cluster.config, cluster.timestamp)
     console.print(table)
 
 @app.command(short_help="List the clusters on the same ring")
@@ -42,17 +42,17 @@ def list_cluster_siblings(name: str):
     clusters = list_cluster(name)
     table = build_cluster_table()
     for cluster in clusters:
-        table.add_row(cluster.name, str(cluster.ring), cluster.config, cluster.timestamp)
+        table.add_row(cluster.name, cluster.ring, cluster.config, cluster.timestamp)
     console.print(table)
 
 @app.command(short_help="Update the ring a cluster is on")
-def update_cluster_ring(name: str, ring: int, config_file: str):
+def update_cluster_ring(name: str, ring: str, config_file: str):
     old_cluster = get_cluster(name)
     if old_cluster.ring == ring:
         typer.echo(f"Cluster {name} is already on Ring {ring}")
         return
     subprocess.call(["scripts/update-cluster-ring.sh", "config-files/"+config_file, \
-        "ring"+str(old_cluster.ring), "ring"+str(ring)])
+        old_cluster.ring, ring])
     new_cluster = update_cluster(name, ring)
     typer.echo(f"Cluster {new_cluster.name} is now on Ring {new_cluster.ring}")
 
@@ -61,7 +61,7 @@ def display_clusters():
     clusters = list_all_clusters()
     table = build_cluster_table()
     for cluster in clusters: 
-        table.add_row(cluster.name, str(cluster.ring), cluster.config, cluster.timestamp)
+        table.add_row(cluster.name, cluster.ring, cluster.config, cluster.timestamp)
     console.print(table)
 
 def build_cluster_table():
@@ -201,8 +201,8 @@ def build_application_table():
 
 # Rollout operations
 @app.command(short_help="Start the rollout for an application on the specified ring")
-def create_rollout(application: str, ring: int):
-    typer.echo(f"Starting rollout for Application {application} on Ring {str(ring)}...")
+def create_rollout(application: str, ring: str):
+    typer.echo(f"Starting rollout for Application {application} on Ring {ring}...")
     time.sleep(5)
     if insert_rollout(Rollout(application)):
         service_map = get_service_map(application)
@@ -211,15 +211,15 @@ def create_rollout(application: str, ring: int):
             pairs = service.version.split(", ")
             for pair in pairs:
                 curr_pair = pair.split(':')
-                if curr_pair[0] == ("ring" + str(ring)):
+                if curr_pair[0] == ring:
                     service.version = curr_pair[1]
             if service.rollout_plan is not None:
-                typer.echo(f"Start rolling out Service {service.service} on Ring {str(ring)}...")
+                typer.echo(f"Start rolling out Service {service.service} on Ring {ring}...")
                 time.sleep(5)
                 typer.echo(f"Current version: {service.version}")
                 time.sleep(5)
                 subprocess.call(["scripts/create-rollout.sh", service.repo.split('/')[-1], \
-                                service.version, service.rollout_plan, "ring"+str(ring)])
+                                service.version, service.rollout_plan, ring])
                 results = list_all_clusters()
                 clusters = []
                 for result in results:

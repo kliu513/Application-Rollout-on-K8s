@@ -227,8 +227,7 @@ def create_rollout(application: str, ring: int):
                     for i in range(len(clusters)):
                         if subprocess.call(["scripts/check-version.sh", "config-files/"+clusters[i].config, \
                                         service.repo.split('/')[-1], service.rollout_plan]):
-                            typer.echo(f"Finished Rolling out Service {service.service} on \
-                                       Cluster {clusters[i].name}")
+                            typer.echo(f"Rolled out Service {service.service} on Cluster {clusters[i].name}")
                             time.sleep(5)
                             clusters.pop(i)
         rollout = get_rollout(application)

@@ -9,6 +9,7 @@ export IMAGE=$(kubectl --kubeconfig $1 get deployment -n fleet-mc-helm-example -
  | jq '.items | .[0].spec.template.spec.containers | .[0].image')
 export IMAGE=$(sed -e 's/^"//' -e 's/"$//' <<< $IMAGE)
 IFS=':' read -ra version <<< $IMAGE
+echo ${version[-1]}
 if [ ${version[-1]} = $3 ]
 then
     exit 1

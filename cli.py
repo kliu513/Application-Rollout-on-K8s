@@ -126,7 +126,7 @@ def build_service_table():
     table.add_column("Service")
     table.add_column("Repository Link")
     table.add_column("Version")
-    table.add_column("Service Dependencies")
+    table.add_column("Dependencies")
     table.add_column("Rollout Plan")
     table.add_column("Creation Timestamp")
     return table
@@ -151,7 +151,7 @@ def set_rollout_plan(application: str, service: str, rollout_plan: str):
 @app.command(short_help="Display an application's information")
 def get_application_info(name: str):
     application = get_application(name)
-    typer.echo(f"Application Name: {application.name}   Creation Timestamp: {application.timestamp}   Services:")
+    typer.echo(f"Application Name: {application.name}\nCreation Timestamp: {application.timestamp}\nServices:")
     table = build_service_table()
     for service in application.services:
         table.add_row(service.application, service.service, service.repo, service.version, service.dependencies, \
@@ -227,6 +227,7 @@ def create_rollout(application: str, ring: str):
                         clusters.append(result)
                 while len(clusters) > 0:
                     for i in range(len(clusters)):
+                        typer.echo(f"Checking Cluster {clusters[i].name}...")
                         if subprocess.call(["scripts/check-version.sh", "config-files/"+clusters[i].config, \
                                         service.repo.split('/')[-1], service.rollout_plan]):
                             typer.echo(f"Rolled out Service {service.service} on Cluster {clusters[i].name}")

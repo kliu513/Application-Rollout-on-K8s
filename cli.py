@@ -203,6 +203,7 @@ def build_application_table():
 @app.command(short_help="Start the rollout for an application on the specified ring")
 def create_rollout(application: str, ring: int):
     typer.echo(f"Starting rollout for Application {application} on Ring {str(ring)}...")
+    time.sleep(5)
     if insert_rollout(Rollout(application)):
         service_map = get_service_map(application)
         for serv in service_map:
@@ -214,6 +215,7 @@ def create_rollout(application: str, ring: int):
                     service.version = curr_pair[1]
             if service.rollout_plan is not None:
                 typer.echo(f"Start rolling out Service {service.service} on Ring {str(ring)}...")
+                time.sleep(5)
                 typer.echo(f"Current version: {service.version}")
                 time.sleep(5)
                 subprocess.call(["scripts/create-rollout.sh", service.repo.split('/')[-1], \

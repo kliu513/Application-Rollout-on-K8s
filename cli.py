@@ -13,14 +13,12 @@ console = Console()
 
 # Cluster operations
 @app.command(short_help="Register an existing cluster")
-def add_cluster(name: str, ring: str, config_file: str):
-    typer.echo(f"Adding Cluster {name} on Ring {ring}...")
-    insert_cluster(Cluster(name, ring, config_file))
-    """
-    if subprocess.call(["scripts/add-cluster.sh", ring, "config-files/"+config_file]):
+def add_cluster(name: str, ring: str, config_file: str, application: str):
+    typer.echo(f"Adding Cluster {name} on Ring {ring} with application {application}...")
+    insert_cluster(Cluster(name, ring, config_file, application))
+    if subprocess.call(["scripts/add-cluster.sh", ring, "config-files/"+config_file, application]):
         delete_cluster(name)
         typer.echo(f"Adding Clutser {name} failed")
-    """
 
 @app.command(short_help="Remove a registered cluster")
 def remove_cluster(name: str):
@@ -34,7 +32,7 @@ def remove_cluster(name: str):
 def get_cluster_info(name: str):
     cluster = get_cluster(name)
     table = build_cluster_table()
-    table.add_row(cluster.name, cluster.ring, cluster.config, cluster.timestamp)
+    table.add_row(cluster.name, cluster.ring, cluster.config, cluster.application, cluster.timestamp)
     console.print(table)
 
 @app.command(short_help="List the clusters on the same ring")
@@ -42,7 +40,7 @@ def list_cluster_siblings(name: str):
     clusters = list_cluster(name)
     table = build_cluster_table()
     for cluster in clusters:
-        table.add_row(cluster.name, cluster.ring, cluster.config, cluster.timestamp)
+        table.add_row(cluster.name, cluster.ring, cluster.config, cluster.application, cluster.timestamp)
     console.print(table)
 
 @app.command(short_help="Update the ring a cluster is on")
@@ -61,7 +59,7 @@ def display_clusters():
     clusters = list_all_clusters()
     table = build_cluster_table()
     for cluster in clusters: 
-        table.add_row(cluster.name, cluster.ring, cluster.config, cluster.timestamp)
+        table.add_row(cluster.name, cluster.ring, cluster.config, cluster.application, cluster.timestamp)
     console.print(table)
 
 def build_cluster_table():
@@ -69,6 +67,7 @@ def build_cluster_table():
     table.add_column("Name")
     table.add_column("Ring")
     table.add_column("Config File")
+    table.add_column("Application")
     table.add_column("Creation Timestamp")
     return table
 
@@ -78,11 +77,15 @@ def build_cluster_table():
 def create_service(application: str, service: str, repo: str, version: str, dependencies: str):
     typer.echo(f"Creating Service {service} in Application {application} from {repo}...")
     insert_service(Service(application, service, repo, version, dependencies))
-    """
     if subprocess.call(["scripts/create-service.sh", repo, repo.split('/')[-1]]):
         remove_service(application, service)
         typer.echo(f"Creating Service {service} in Application {application} failed")
-    """
+    else:
+        clusters = list_all_clusters()
+        for cluster in clusters:
+            if cluster.application == application:
+                typer.echo(f"Checking Cluster {cluster.name}...")
+                subprocess.call(["scripts/display-service-status.sh", cluster.config, repo.split('/')[-1]])
 
 @app.command(short_help="Set a service's dependencies")
 def set_dependencies(application: str, service: str, dependencies: str):
@@ -158,7 +161,7 @@ def get_application_info(name: str):
             service.rollout_plan, service.timestamp)
     console.print(table)
 
-@app.command(short_help="Topologically sort an application's service dependency map")
+@app.command(short_help="Topologically sort an application's service dependency relationship")
 def get_service_map(application: str):
     def top_sort(service: Service, visited: dict, results: list, top_num: int):
         visited[service.service] = True

@@ -16,7 +16,7 @@ def create_cluster_table():
 
 def insert_cluster(cluster: Cluster):
     with connection:
-        cursor.execute("INSERT OR IGNORE INTO CLUSTERS VALUES (:name, :ring, :config, : application, :timestamp)", 
+        cursor.execute("INSERT OR IGNORE INTO CLUSTERS VALUES (:name, :ring, :config, :application, :timestamp)", 
         {"name": cluster.name, "ring": cluster.ring, "config": cluster.config, "application": cluster.application, \
          "timestamp": cluster.timestamp})
 

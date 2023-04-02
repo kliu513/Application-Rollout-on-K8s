@@ -14,7 +14,7 @@ console = Console()
 # Cluster operations
 @app.command(short_help="Register an existing cluster")
 def add_cluster(name: str, ring: str, config_file: str, application: str):
-    typer.echo(f"Adding Cluster {name} on Ring {ring} with application {application}...")
+    typer.echo(f"Adding Cluster {name} on Ring {ring} in Application {application}...")
     insert_cluster(Cluster(name, ring, config_file, application))
     if subprocess.call(["scripts/add-cluster.sh", ring, "config-files/"+config_file, application]):
         delete_cluster(name)
@@ -85,7 +85,8 @@ def create_service(application: str, service: str, repo: str, version: str, depe
         for cluster in clusters:
             if cluster.application == application:
                 typer.echo(f"Checking Cluster {cluster.name}...")
-                subprocess.call(["scripts/display-service-status.sh", cluster.config, repo.split('/')[-1]])
+                subprocess.call(["scripts/display-service-status.sh", "config-files/"+cluster.config, \
+                                 repo.split('/')[-1]])
 
 @app.command(short_help="Set a service's dependencies")
 def set_dependencies(application: str, service: str, dependencies: str):
@@ -226,7 +227,7 @@ def create_rollout(application: str, ring: str):
                 results = list_all_clusters()
                 clusters = []
                 for result in results:
-                    if result.ring == ring:
+                    if result.application == application and result.ring == ring:
                         clusters.append(result)
                 while len(clusters) > 0:
                     for i in range(len(clusters)):

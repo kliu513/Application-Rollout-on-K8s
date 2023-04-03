@@ -7,6 +7,7 @@ git clone $1
 cd $2
 kubectl --kubeconfig ../$KUBECONFIG_MAN apply -f repo.yaml
 cd ..
+sleep 10
 kubectl --kubeconfig $KUBECONFIG_MAN -n clusters get fleet > log.txt
 n_lines_after=`wc --lines < log.txt`
 rm log.txt

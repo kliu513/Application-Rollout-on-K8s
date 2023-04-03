@@ -230,13 +230,12 @@ def create_rollout(application: str, ring: str):
                     if result.application == application and result.ring == ring:
                         clusters.append(result)
                 while len(clusters) > 0:
-                    for i in range(len(clusters)):
-                        typer.echo(f"Checking Cluster {clusters[i].name}...")
-                        if subprocess.call(["scripts/check-version.sh", "config-files/"+clusters[i].config, \
+                    typer.echo(f"Checking Cluster {clusters[0].name}...")
+                    if subprocess.call(["scripts/check-version.sh", "config-files/"+clusters[0].config, \
                                         service.repo.split('/')[-1], service.rollout_plan]):
-                            typer.echo(f"Rolled out Service {service.service} on Cluster {clusters[i].name}")
-                            time.sleep(5)
-                            clusters.pop(i)
+                        typer.echo(f"Rolled out Service {service.service} on Cluster {clusters[0].name}")
+                        time.sleep(5)
+                        clusters.pop(0)
         rollout = get_rollout(application)
         table = build_rollout_table()
         table.add_row(rollout.guid, rollout.application, str(rollout.status), rollout.timestamp, \

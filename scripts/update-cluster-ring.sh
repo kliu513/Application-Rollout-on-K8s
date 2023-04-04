@@ -11,5 +11,5 @@ rm log.txt
 touch "$CLUSTER.json"
 kubectl --kubeconfig $KUBECONFIG_MAN -n clusters get clusters.fleet.cattle.io $CLUSTER -o json > "$CLUSTER.json"
 sed -i.bak "s/$2/$3/g" "$CLUSTER.json"
-kubectl apply -f "$CLUSTER.json"
+kubectl --kubeconfig $KUBECONFIG_MAN apply -f "$CLUSTER.json"
 rm "$CLUSTER.json"

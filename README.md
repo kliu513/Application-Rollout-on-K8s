@@ -10,10 +10,10 @@ The [Rancher Fleet](https://fleet.rancher.io/) project cracks the problem on the
 * **Simplified operations.** The steps of deploying Rancher Fleet is quite confusing in spite of its official documentation. Following the steps requires some background knowledge in Helm and kubectl operations. While in this applicaion, these steps are completed by scripts, a user does not need to operate anything with kubectl. Rather, a single defined command can do the job.
 
 ## Components
-# ## Application.## An Application is a represenation of an real-world application possibly consisted of multiple GitHub repositories and deployed on multiple Kubernetes clusters. Any other component belongs to an Application.
-# ## Cluster.## A Cluster is a representation of a Kubernetes cluster to be managed by the pre-defined fleet manager cluster. When registering an Cluster, the user needs to define which Application it belongs to. The Cluster will also have to be specificed which ring it is on.
-# ## Service.## An big Application has multiple Services, each represented by a GitHub repository. They can possibly depend on each other, and these dependency relationships can be defined. When creating a Service, the user needs to define which Application it belongs to.
-# ## Rollout.## A Rollout is a process that updates the image of a specified Application on all the Clusters the Application owns on a specific ring.
+* **Application.** An Application is a represenation of an real-world application possibly consisted of multiple GitHub repositories and deployed on multiple Kubernetes clusters. Any other component belongs to an Application.
+* **Cluster.** A Cluster is a representation of a Kubernetes cluster to be managed by the pre-defined fleet manager cluster. When registering an Cluster, the user needs to define which Application it belongs to. The Cluster will also have to be specificed which ring it is on.
+* **Service.** An big Application has multiple Services, each represented by a GitHub repository. They can possibly depend on each other, and these dependency relationships can be defined. When creating a Service, the user needs to define which Application it belongs to.
+* **Rollout.** A Rollout is a process that updates the image of a specified Application on all the Clusters the Application owns on a specific ring.
 
 ## APIs
 ### Application

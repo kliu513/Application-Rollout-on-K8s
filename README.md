@@ -17,3 +17,8 @@ The [Rancher Fleet](https://fleet.rancher.io/) project cracks the problem on the
 
 ## APIs
 ### Application
+`python3 cli.py create-application [APPLICATION NAME]`
+`python3 cli.py remove-application [APPLICATION NAME]`
+`python3 cli.py get-application-info [APPLICATION NAME]`
+`python3 cli.py get-service-map [APPLICATION NAME]`
+`python3 cli.py display-applications`

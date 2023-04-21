@@ -16,9 +16,13 @@ The [Rancher Fleet](https://fleet.rancher.io/) project cracks the problem on the
 * **Rollout.** A Rollout is a process that updates the image of a specified Application on all the Clusters the Application owns on a specific ring.
 
 ## APIs
+To start using this application, run:
+`$ git clone https://github.com/kliu513/Application-Rollout-on-K8s`  
+`$ cd Application-Rollout-on-K8s`  
+In the cloned repository, we can start using the APIs.
 ### Application
-`python3 cli.py create-application [APPLICATION NAME]`
-`python3 cli.py remove-application [APPLICATION NAME]`
-`python3 cli.py get-application-info [APPLICATION NAME]`
-`python3 cli.py get-service-map [APPLICATION NAME]`
-`python3 cli.py display-applications`
+* Create an empty application: `$ python3 cli.py create-application [APPLICATION NAME]`
+* Remove an application: `$ python3 cli.py remove-application [APPLICATION NAME]`
+* Display an appplication's information: `$ python3 cli.py get-application-info [APPLICATION NAME]`
+* Topologically sort and display an application's service relationship map based on their dependency on each other: `$ python3 cli.py get-service-map [APPLICATION NAME]`
+* Display all applications: `$ python3 cli.py display-applications`

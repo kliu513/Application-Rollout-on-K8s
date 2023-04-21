@@ -89,6 +89,12 @@ def set_dependencies(application: str, service: str, dependencies: str):
     updated_service = update_service_deps(application, service, dependencies)
     typer.echo(f"Service {updated_service.service} now depends on {updated_service.dependencies}")
 
+@app.command(short_help="Add a rollout plan for a service")
+def set_rollout_plan(application: str, service: str, rollout_plan: str):
+    typer.echo(f"Setting a rollout plan for Service {service}...")
+    updated_service = update_rollout_plan(application, service, rollout_plan)
+    typer.echo(f"Service {updated_service.service} will be rolled out to Version {updated_service.rollout_plan}")
+
 @app.command(short_help="Get a service's info")
 def get_service_info(app_name: str, service_name: str):
     service = get_service(app_name, service_name)
@@ -141,12 +147,6 @@ def create_application(name: str):
 def remove_application(name: str):
     typer.echo(f"Removing Application {name}...")
     delete_application(name)
-
-@app.command(short_help="Add a rollout plan for a service of the application")
-def set_rollout_plan(application: str, service: str, rollout_plan: str):
-    typer.echo(f"Setting a rollout plan for Service {service}...")
-    updated_service = update_rollout_plan(application, service, rollout_plan)
-    typer.echo(f"Service {updated_service.service} will be rolled out to Version {updated_service.rollout_plan}")
 
 @app.command(short_help="Display an application's information")
 def get_application_info(name: str):

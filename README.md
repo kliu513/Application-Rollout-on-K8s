@@ -16,13 +16,32 @@ The [Rancher Fleet](https://fleet.rancher.io/) project cracks the problem on the
 * **Rollout.** A Rollout is a process that updates the image of a specified Application on all the Clusters the Application owns on a specific ring.
 
 ## APIs
-To start using this application, run:
+To start using this application, run:  
 `$ git clone https://github.com/kliu513/Application-Rollout-on-K8s`  
 `$ cd Application-Rollout-on-K8s`  
 In the cloned repository, we can start using the APIs.
 ### Application
+**Note:** In an application, the dependency relationships among its services have to be a directed acyclic graph (DAG).
 * Create an empty application: `$ python3 cli.py create-application [APPLICATION NAME]`
 * Remove an application: `$ python3 cli.py remove-application [APPLICATION NAME]`
 * Display an appplication's information: `$ python3 cli.py get-application-info [APPLICATION NAME]`
 * Topologically sort and display an application's service relationship map based on their dependency on each other: `$ python3 cli.py get-service-map [APPLICATION NAME]`
 * Display all applications: `$ python3 cli.py display-applications`
+### Cluster
+**Note:** Before adding clusters, a user needs to have a Kubernetes cluster ready and follow [this](https://fleet.rancher.io/installation) tutorial to finish multi-cluster setup and [this](https://fleet.rancher.io/cluster-registration#create-cluster-registration-tokens) to create a cluster registration token.  
+After finishing these steps, there should be three new files: `ca.pem`, `token.yaml`, and `values.yaml`. Create a new directory named `config-files` under `Application-Rollout-on-K8s` and copy these files to the directory. Add the configuration file of the Fleet manager to the directory. Before adding a cluster, make sure the cluster's configuration file has been added to the directory `config-files`.  
+No need to include `config-files/` in a configuration filepath.
+* Register a cluster in an application: `$ python3 cli.py add-cluster [CLUSTER NAME] [ROLLOUT RING] [CONFIGURATION FILEPATH] [APPLICATION]`.
+* Remove a cluster: `$ python3 cli.py remove-cluster [CLUSTER NAME]`
+* Get a cluster's information: `$ python3 cli.py get-cluster-info [CLUSTER NAME]`
+* List the other clusters on a cluster's rollout ring: `python3 cli.py list-cluster-siblings [CLUSTER NAME]`
+* Update the rollout ring a cluster is on: `python3 cli.py update-cluster-ring [CLUSTER NAME] [NEW ROLLOUT RING] [CONFIGURATION FILEPATH]`
+* Display all clusters: `$ python3 cli.py display-clusters`
+### Service
+* Create a service in an existing application from a GitHub repository: `$ python3 cli.py create-service [APPLICATION NAME] [SERVICE NAME] [REPOSITORY LINK] [IMAGE VERSION] [DEPENDENCIES]` **Note:** Dependencies are a list of the services depended on in a format of `ServiceA/ServiceB/ServiceC`.
+* Reset a service's dependencies: `$ python3 cli.py set-dependencies [APPLICATION NAME] [SERVICE NAME] [NEW DEPENDENCIES]`
+* Set a rollout plan for a service: `$ python3 cli.py set-rollout-plan [APPLICATION NAME] [SERVICE NAME] [NEW IMAGE VERSION]`
+* Get a service's information: `$ python3 cli.py get-service-info [APPLICATION NAME] [SERVICE NAME]`
+* Remove a service: `$ python3 cli.py remove-service [APPLICATION NAME] [SERVICE NAME]`
+* Display all services of an application: `$ python3 cli.py display-services [APPLICATION NAME]`
+* Display all services: `$ python3 cli.py display-services all`

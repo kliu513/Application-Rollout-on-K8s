@@ -2,14 +2,15 @@ import datetime
 import uuid
 
 class Cluster:
-    def __init__(self, name, ring, config_filename, timestamp=None):
+    def __init__(self, name, ring, config_filename, application, timestamp=None):
         self.name = name
         self.ring = ring
         self.config = config_filename
+        self.application = application
         self.timestamp = timestamp if timestamp is not None else datetime.datetime.now().isoformat()
     
     def __repr__(self) -> str:
-        return f"({self.name}, {self.ring}, {self.config}, {self.timestamp})"
+        return f"({self.name}, {self.ring}, {self.config}, {self.application}, {self.timestamp})"
 
 class Service:
     def __init__(self, application, service, repo, version, dependencies, rollout_plan=None, \

@@ -10,13 +10,15 @@ def create_cluster_table():
         name text PRIMARY KEY,
         ring text,
         file text,
+        application text,
         timestamp text
     )""")
 
 def insert_cluster(cluster: Cluster):
     with connection:
-        cursor.execute("INSERT OR IGNORE INTO CLUSTERS VALUES (:name, :ring, :config, :timestamp)", 
-        {"name": cluster.name, "ring": cluster.ring, "config": cluster.config, "timestamp": cluster.timestamp})
+        cursor.execute("INSERT OR IGNORE INTO CLUSTERS VALUES (:name, :ring, :config, :application, :timestamp)", 
+        {"name": cluster.name, "ring": cluster.ring, "config": cluster.config, "application": cluster.application, \
+         "timestamp": cluster.timestamp})
 
 def get_cluster(cluster_name: str):
     with connection:

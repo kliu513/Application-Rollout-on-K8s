@@ -1,5 +1,5 @@
 # Application-Rollout-on-K8s
-There has long been a tension between the large amount of Kubernetes clusters needed and, on these clusters, the cumbersome application rollout process, which makes the development and deployment of application extremely slow.
+There has long been a tension between the large amount of Kubernetes clusters needed and, on these clusters, the cumbersome application rollout process, which makes the development and deployment of applications extremely slow.
 
 The [Rancher Fleet](https://fleet.rancher.io/) project cracks the problem in the aspect of cluster management, while the issues relevant to application management are left unresolved. This command line application, built on top of Rancher Fleet, provides a holistic solution to application rollout on Kubernetes clusters.
 

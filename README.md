@@ -26,9 +26,9 @@ The [Rancher Fleet](https://fleet.rancher.io/) project cracks the problem in the
 ## Quick Start
 To use this command line application, clone this repository locally. Here are a few prerequisites before you can get started:
 
-* **A Fleet Controller cluster (Fleet Manager).** Fleet Manager does the actual work to manage clusters. Follow [this](https://fleet.rancher.io/installation) guide to finish multi-cluster setup on Fleet Manager and [this](https://fleet.rancher.io/cluster-registration#create-cluster-registration-tokens) to create a cluster registration token. After these steps, there should be three new files: `ca.pem`, `token.yaml`, and `values.yaml`. In the cloned repository, create a directory named `config-files` and copy these files to the new directory. Name Fleet Manager's configuration file `manager.cfg` and add it to the directory, too.
+* **Prepare a Fleet Controller cluster (Fleet Manager).** Fleet Manager does the actual work to manage clusters. Follow [this](https://fleet.rancher.io/installation) guide to finish multi-cluster setup on Fleet Manager and [this](https://fleet.rancher.io/cluster-registration#create-cluster-registration-tokens) to create a cluster registration token. After these steps, there should be three new files: `ca.pem`, `token.yaml`, and `values.yaml`. In the cloned repository, create a directory named `config-files` and copy these files to the new directory. Name Fleet Manager's configuration file `manager.cfg` and add it to the directory, too.
 
-* **Structured GitHub repositories.** All GitHub repositories of the applications to be deployed need to be structured [this](https://fleet.rancher.io/gitrepo-content) way. Example repositories: [fleet-examples](https://github.com/kliu513/fleet-examples/tree/master/multi-cluster) and [rancher-fleet-demo](https://github.com/kliu513/rancher-fleet-demo).
+* **Prepare structured GitHub repositories.** All GitHub repositories of the applications to be deployed need to be structured [this](https://fleet.rancher.io/gitrepo-content) way. Example repositories: [fleet-examples](https://github.com/kliu513/fleet-examples/tree/master/multi-cluster) and [rancher-fleet-demo](https://github.com/kliu513/rancher-fleet-demo).
 
 ## APIs
 ### Application
